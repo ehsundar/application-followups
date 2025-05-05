@@ -5,10 +5,18 @@ import { useRouter } from 'next/navigation';
 import { EmailPreview } from '../types';
 import { renderEmailTemplate } from '../utils';
 
+interface EmailStatus {
+  loading: boolean;
+  error: string;
+  success: boolean;
+}
+
 export default function PreviewPage() {
   const router = useRouter();
   const [emailPreviews, setEmailPreviews] = useState<EmailPreview[]>([]);
   const [expandedEmails, setExpandedEmails] = useState<Set<number>>(new Set());
+  const [emailStatuses, setEmailStatuses] = useState<EmailStatus[]>([]);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const storedApplicants = localStorage.getItem('selectedApplicants');
@@ -33,6 +41,7 @@ export default function PreviewPage() {
       });
 
       setEmailPreviews(previews);
+      setEmailStatuses(previews.map(() => ({ loading: false, error: '', success: false })));
     }
   }, []);
 
@@ -47,9 +56,15 @@ export default function PreviewPage() {
   };
 
   const handleSend = async () => {
-    try {
-      // Send all emails
-      for (const preview of emailPreviews) {
+    setIsSending(true);
+    const newStatuses = emailPreviews.map(() => ({ loading: true, error: '', success: false }));
+    setEmailStatuses(newStatuses);
+
+    let allSuccess = true;
+
+    for (let i = 0; i < emailPreviews.length; i++) {
+      const preview = emailPreviews[i];
+      try {
         const response = await fetch('/api/email/send', {
           method: 'POST',
           headers: {
@@ -65,14 +80,20 @@ export default function PreviewPage() {
         if (!response.ok) {
           throw new Error(`Failed to send email to ${preview.applicant.email}`);
         }
-      }
 
-      alert('All emails sent successfully!');
-      router.push('/');
-    } catch (error) {
-      console.error('Error sending emails:', error);
-      alert('Failed to send some emails. Please check the console for details.');
+        newStatuses[i] = { loading: false, error: '', success: true };
+      } catch (error) {
+        allSuccess = false;
+        newStatuses[i] = {
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to send email',
+          success: false
+        };
+      }
+      setEmailStatuses([...newStatuses]);
     }
+
+    setIsSending(false);
   };
 
   if (emailPreviews.length === 0) {
@@ -106,10 +127,19 @@ export default function PreviewPage() {
               onClick={() => toggleEmail(index)}
               className="w-full p-4 text-left flex justify-between items-center hover:bg-gray-50"
             >
-              <div>
+              <div className="flex items-center gap-2">
                 <span className="font-medium">{preview.applicant.name}</span>
-                <span className="text-gray-500 ml-2">({preview.applicant.email})</span>
-                <span className="text-gray-500 ml-2">- {preview.applicant.subject}</span>
+                <span className="text-gray-500">({preview.applicant.email})</span>
+                <span className="text-gray-500">- {preview.applicant.subject}</span>
+                {emailStatuses[index]?.loading && (
+                  <span className="text-blue-500">Sending...</span>
+                )}
+                {emailStatuses[index]?.success && (
+                  <span className="text-green-500">✓ Sent</span>
+                )}
+                {emailStatuses[index]?.error && (
+                  <span className="text-red-500">✗ Failed</span>
+                )}
               </div>
               <div className="text-gray-500">
                 {expandedEmails.has(index) ? '▼' : '▶'}
@@ -129,6 +159,12 @@ export default function PreviewPage() {
                     <pre className="whitespace-pre-wrap text-gray-900">{preview.renderedBody}</pre>
                   </div>
                 </div>
+
+                {emailStatuses[index]?.error && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+                    <p className="text-red-600">{emailStatuses[index].error}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -137,9 +173,14 @@ export default function PreviewPage() {
 
       <button
         onClick={handleSend}
-        className="mt-8 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        disabled={isSending}
+        className={`mt-8 px-4 py-2 text-white rounded ${
+          isSending
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600'
+        }`}
       >
-        Send All Emails
+        {isSending ? 'Sending Emails...' : 'Send All Emails'}
       </button>
     </main>
   );
