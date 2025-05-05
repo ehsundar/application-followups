@@ -5,7 +5,6 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { Checkbox } from './ui/checkbox';
 import { Applicant } from '../types';
 
 interface ApplicantTableProps {
@@ -17,34 +16,6 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
   const columnHelper = createColumnHelper<Applicant>();
 
   const columns = useMemo(() => [
-    columnHelper.display({
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllRowsSelected()}
-          onCheckedChange={(value) => {
-            const newApplicants = applicants.map(applicant => ({
-              ...applicant,
-              selected: !!value
-            }));
-            onApplicantsChange(newApplicants);
-          }}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.original.selected}
-          onCheckedChange={(value) => {
-            const newApplicants = applicants.map(applicant =>
-              applicant.email === row.original.email
-                ? { ...applicant, selected: !!value }
-                : applicant
-            );
-            onApplicantsChange(newApplicants);
-          }}
-        />
-      ),
-    }),
     columnHelper.accessor('name', {
       header: 'Name',
     }),
@@ -60,7 +31,7 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
     columnHelper.accessor('subject', {
       header: 'Subject',
     }),
-  ], [applicants, onApplicantsChange]);
+  ], []);
 
   const table = useReactTable({
     data: applicants,
