@@ -14,11 +14,14 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail(to: string, subject: string, body: string) {
   try {
+    // Convert newlines to HTML line breaks
+    const formattedBody = body.replace(/\n/g, '<br>');
+
     const info = await transporter.sendMail({
       from: process.env.GMAIL_USER,
       to,
       subject,
-      html: body,
+      html: formattedBody,
     });
 
     return { success: true, messageId: info.messageId };
