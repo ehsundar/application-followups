@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
 
-if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+const USE_DUMMY_EMAILS = process.env.USE_DUMMY_EMAILS === 'true';
+
+if (!USE_DUMMY_EMAILS && (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)) {
   throw new Error('Gmail credentials are not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.');
 }
 
@@ -14,7 +16,28 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail(to: string, subject: string, body: string) {
   try {
-    // Convert newlines to HTML line breaks
+    if (USE_DUMMY_EMAILS) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Simulate success with 90% probability
+      if (Math.random() > 0.5) {
+        return {
+          success: true,
+          messageId: `simulated-${Date.now()}-${Math.random().toString(36).substring(7)}`
+        };
+      } else {
+        // Simulate random errors
+        const errors = [
+          'Network timeout',
+          'Server busy',
+          'Invalid recipient',
+          'Rate limit exceeded'
+        ];
+        throw new Error(errors[Math.floor(Math.random() * errors.length)]);
+      }
+    }
+
     const formattedBody = body.replace(/\n/g, '<br>');
 
     const info = await transporter.sendMail({
