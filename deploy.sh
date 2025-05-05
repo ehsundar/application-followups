@@ -10,7 +10,7 @@ ssh htz "sudo mkdir -p /root/application-followups"
 
 # Copy the necessary files to the server
 echo "Copying files to server..."
-rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.next/cache' . htz:/root/application-followups/
+rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.next/cache' --exclude '.env.local' . htz:/root/application-followups/
 
 # Install dependencies and start the service
 echo "Installing dependencies and starting service..."
