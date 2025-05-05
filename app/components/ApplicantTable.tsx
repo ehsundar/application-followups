@@ -16,6 +16,24 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
   const columnHelper = createColumnHelper<Applicant>();
 
   const columns = useMemo(() => [
+    columnHelper.accessor('selected', {
+      header: '',
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={row.original.selected}
+          onChange={(e) => {
+            const newApplicants = [...applicants];
+            newApplicants[row.index] = {
+              ...newApplicants[row.index],
+              selected: e.target.checked
+            };
+            onApplicantsChange(newApplicants);
+          }}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+      ),
+    }),
     columnHelper.accessor('name', {
       header: 'Name',
     }),
@@ -31,7 +49,7 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
     columnHelper.accessor('subject', {
       header: 'Subject',
     }),
-  ], []);
+  ], [columnHelper, applicants, onApplicantsChange]);
 
   const table = useReactTable({
     data: applicants,

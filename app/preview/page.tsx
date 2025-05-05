@@ -11,6 +11,21 @@ interface EmailStatus {
   success: boolean;
 }
 
+interface Applicant {
+  selected: boolean;
+  subject: string;
+  email: string;
+  name: string;
+  university: string;
+  emailDate: string;
+}
+
+interface Template {
+  label: string;
+  subject: string;
+  body: string;
+}
+
 export default function PreviewPage() {
   const router = useRouter();
   const [emailPreviews, setEmailPreviews] = useState<EmailPreview[]>([]);
@@ -23,13 +38,13 @@ export default function PreviewPage() {
     const storedTemplates = localStorage.getItem('emailTemplates');
 
     if (storedApplicants && storedTemplates) {
-      const applicants = JSON.parse(storedApplicants);
-      const templates = JSON.parse(storedTemplates);
+      const applicants = JSON.parse(storedApplicants) as Applicant[];
+      const templates = JSON.parse(storedTemplates) as Template[];
 
       const previews: EmailPreview[] = [];
-      applicants.forEach((applicant: any) => {
+      applicants.forEach((applicant) => {
         if (applicant.selected) {
-          const template = templates.find((t: any) => t.label === applicant.subject);
+          const template = templates.find((t) => t.label === applicant.subject);
           if (template && template.subject && template.body) {
             previews.push({
               applicant,
@@ -60,8 +75,6 @@ export default function PreviewPage() {
     const newStatuses = emailPreviews.map(() => ({ loading: true, error: '', success: false }));
     setEmailStatuses(newStatuses);
 
-    let allSuccess = true;
-
     for (let i = 0; i < emailPreviews.length; i++) {
       const preview = emailPreviews[i];
       try {
@@ -83,7 +96,6 @@ export default function PreviewPage() {
 
         newStatuses[i] = { loading: false, error: '', success: true };
       } catch (error) {
-        allSuccess = false;
         newStatuses[i] = {
           loading: false,
           error: error instanceof Error ? error.message : 'Failed to send email',

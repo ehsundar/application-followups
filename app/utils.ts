@@ -6,15 +6,15 @@ export function parseCSV(file: File): Promise<Applicant[]> {
     Papa.parse(file, {
       header: true,
       transformHeader: (header) => header.toLowerCase(),
-      complete: (results) => {
+      complete: (results: { data: Array<Record<string, string>> }) => {
         const applicants: Applicant[] = results.data
-          .filter((row: any) => row.email && row.name && row.university) // Filter out empty rows
-          .map((row: any) => ({
+          .filter((row) => row.email && row.name && row.university)
+          .map((row) => ({
             email: row.email,
             name: row.name,
             university: row.university,
-            emailDate: row.emaildate,
-            subject: row.subject,
+            emailDate: row.emaildate || '',
+            subject: row.subject || '',
             selected: true
           }));
         resolve(applicants);

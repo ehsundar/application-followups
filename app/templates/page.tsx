@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EmailTemplateForm } from '../components/EmailTemplateForm';
-import { Applicant, EmailTemplate } from '../types';
+import { EmailTemplate } from '../types';
 import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates, mapTemplatesToLabels } from '../utils';
 
 interface TemplateErrors {
@@ -15,7 +15,6 @@ interface TemplateErrors {
 
 export default function TemplatesPage() {
   const router = useRouter();
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
   const [errors, setErrors] = useState<TemplateErrors>({});
@@ -24,7 +23,6 @@ export default function TemplatesPage() {
     const storedApplicants = localStorage.getItem('selectedApplicants');
     if (storedApplicants) {
       const parsedApplicants = JSON.parse(storedApplicants);
-      setApplicants(parsedApplicants);
       const uniqueLabels = getUniqueLabels(parsedApplicants);
       setLabels(uniqueLabels);
 
@@ -45,6 +43,16 @@ export default function TemplatesPage() {
     if ((template.subject && !template.body) || (!template.subject && template.body)) {
       templateErrors.subject = 'Please complete both subject and body, or leave both empty.';
       templateErrors.body = 'Please complete both subject and body, or leave both empty.';
+    }
+
+    // Check for required fields if either is filled
+    if (template.subject || template.body) {
+      if (!template.subject) {
+        templateErrors.subject = 'Subject is required when body is filled.';
+      }
+      if (!template.body) {
+        templateErrors.body = 'Body is required when subject is filled.';
+      }
     }
 
     // Check for valid variables in body
@@ -93,6 +101,13 @@ export default function TemplatesPage() {
     setErrors(allErrors);
 
     if (!hasErrors) {
+      // Check if at least one template is configured
+      const hasConfiguredTemplate = templates.some(template => template.subject && template.body);
+      if (!hasConfiguredTemplate) {
+        alert('Please configure at least one email template before proceeding.');
+        return;
+      }
+
       // Save templates one last time before proceeding
       saveEmailTemplates(templates);
       router.push('/preview');

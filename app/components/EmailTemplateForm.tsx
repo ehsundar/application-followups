@@ -11,28 +11,6 @@ interface EmailTemplateFormProps {
 }
 
 export function EmailTemplateForm({ label, template, onChange, errors }: EmailTemplateFormProps) {
-  const validateTemplate = (field: keyof EmailTemplate, value: string): string | undefined => {
-    if (field === 'subject' || field === 'body') {
-      // Check for partial completion
-      if ((field === 'subject' && value && !template.body) ||
-          (field === 'body' && value && !template.subject)) {
-        return 'Please complete both subject and body, or leave both empty.';
-      }
-
-      // Check for valid variables in body
-      if (field === 'body') {
-        const validVariables = ['{{name}}', '{{email}}', '{{university}}', '{{emailDate}}', '{{subject}}'];
-        const matches = value.match(/{{[^}]+}}/g) || [];
-        const invalidVariables = matches.filter(match => !validVariables.includes(match));
-
-        if (invalidVariables.length > 0) {
-          return `Invalid variables found: ${invalidVariables.join(', ')}. Only ${validVariables.join(', ')} are allowed.`;
-        }
-      }
-    }
-    return undefined;
-  };
-
   const handleChange = (field: keyof EmailTemplate, value: string) => {
     const newTemplate = {
       ...template,
@@ -85,9 +63,9 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
         <div className="text-sm text-gray-500">
           <p>Available variables:</p>
           <ul className="list-disc list-inside">
-            <li><code>{'{{name}}'}</code> - Applicant's name</li>
-            <li><code>{'{{email}}'}</code> - Applicant's email</li>
-            <li><code>{'{{university}}'}</code> - Applicant's university</li>
+            <li><code>{'{{name}}'}</code> - Applicant&apos;s name</li>
+            <li><code>{'{{email}}'}</code> - Applicant&apos;s email</li>
+            <li><code>{'{{university}}'}</code> - Applicant&apos;s university</li>
             <li><code>{'{{emailDate}}'}</code> - Email date</li>
             <li><code>{'{{subject}}'}</code> - Email subject</li>
           </ul>
