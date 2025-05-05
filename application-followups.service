@@ -1,0 +1,15 @@
+[Unit]
+Description=Application Followups Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/application-followups
+ExecStart=/home/ubuntu/.local/share/pnpm/pnpm start
+Restart=always
+Environment=NODE_ENV=production
+Environment=PORT=8000
+
+[Install]
+WantedBy=multi-user.target
