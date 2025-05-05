@@ -46,15 +46,33 @@ export default function PreviewPage() {
     setExpandedEmails(newExpanded);
   };
 
-  const handleSend = () => {
-    // Send all emails
-    emailPreviews.forEach((preview, index) => {
-      console.log('Sending email:', {
-        to: preview.applicant.email,
-        subject: preview.template.subject,
-        body: preview.renderedBody
-      });
-    });
+  const handleSend = async () => {
+    try {
+      // Send all emails
+      for (const preview of emailPreviews) {
+        const response = await fetch('/api/email/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: preview.applicant.email,
+            subject: preview.template.subject,
+            body: preview.renderedBody,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to send email to ${preview.applicant.email}`);
+        }
+      }
+
+      alert('All emails sent successfully!');
+      router.push('/');
+    } catch (error) {
+      console.error('Error sending emails:', error);
+      alert('Failed to send some emails. Please check the console for details.');
+    }
   };
 
   if (emailPreviews.length === 0) {
