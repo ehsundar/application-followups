@@ -1,3 +1,4 @@
-"email","name","field of work"
-"imanmenbary@gmail.com","Iman Menbary","Computer Science"
-"imanmenbary@gmail.com","Iman Menbary","Data Science"
+University,Name,Email,EmailDate,Subject
+Harvard,Filipe De Carvalho,imanmenbary@gmail.com,1404-1-17,urologic oncology
+Stanford,John Smith,imanmenbary@gmail.com,1404-1-18,cardiac surgery
+MIT,Jane Doe,imanmenbary@gmail.com,1404-1-19,neuroscience

@@ -21,7 +21,7 @@ export default function PreviewPage() {
       const previews: EmailPreview[] = [];
       applicants.forEach((applicant: any) => {
         if (applicant.selected) {
-          const template = templates.find((t: any) => t.label === applicant.fieldOfWork);
+          const template = templates.find((t: any) => t.label === applicant.subject);
           if (template && template.subject && template.body) {
             previews.push({
               applicant,
@@ -109,7 +109,7 @@ export default function PreviewPage() {
               <div>
                 <span className="font-medium">{preview.applicant.name}</span>
                 <span className="text-gray-500 ml-2">({preview.applicant.email})</span>
-                <span className="text-gray-500 ml-2">- {preview.applicant.fieldOfWork}</span>
+                <span className="text-gray-500 ml-2">- {preview.applicant.subject}</span>
               </div>
               <div className="text-gray-500">
                 {expandedEmails.has(index) ? '▼' : '▶'}

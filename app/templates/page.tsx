@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EmailTemplateForm } from '../components/EmailTemplateForm';
 import { Applicant, EmailTemplate } from '../types';
-import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates } from '../utils';
+import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates, mapTemplatesToLabels } from '../utils';
 
 interface TemplateErrors {
   [key: number]: {
@@ -28,17 +28,11 @@ export default function TemplatesPage() {
       const uniqueLabels = getUniqueLabels(parsedApplicants);
       setLabels(uniqueLabels);
 
-      // Load saved templates or initialize new ones
+      // Load saved templates and map them to current labels
       const savedTemplates = loadEmailTemplates();
-      if (savedTemplates.length > 0) {
-        setTemplates(savedTemplates);
-      } else {
-        setTemplates(uniqueLabels.map(label => ({
-          label,
-          subject: '',
-          body: ''
-        })));
-      }
+      const mappedTemplates = mapTemplatesToLabels(savedTemplates, uniqueLabels);
+      setTemplates(mappedTemplates);
+      saveEmailTemplates(mappedTemplates);
     } else {
       router.push('/');
     }
@@ -55,7 +49,7 @@ export default function TemplatesPage() {
 
     // Check for valid variables in body
     if (template.body) {
-      const validVariables = ['{{name}}', '{{email}}', '{{field}}'];
+      const validVariables = ['{{name}}', '{{email}}', '{{university}}', '{{emailDate}}', '{{subject}}'];
       const matches = template.body.match(/{{[^}]+}}/g) || [];
       const invalidVariables = matches.filter(match => !validVariables.includes(match));
 
@@ -99,6 +93,8 @@ export default function TemplatesPage() {
     setErrors(allErrors);
 
     if (!hasErrors) {
+      // Save templates one last time before proceeding
+      saveEmailTemplates(templates);
       router.push('/preview');
     }
   };

@@ -51,9 +51,14 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
     columnHelper.accessor('email', {
       header: 'Email',
     }),
-    columnHelper.accessor('fieldOfWork', {
-      header: 'Field of Work',
-      cell: ({ getValue }) => getValue(),
+    columnHelper.accessor('university', {
+      header: 'University',
+    }),
+    columnHelper.accessor('emailDate', {
+      header: 'Email Date',
+    }),
+    columnHelper.accessor('subject', {
+      header: 'Subject',
     }),
   ], [applicants, onApplicantsChange]);
 

@@ -1,7 +1,9 @@
 export interface Applicant {
   email: string;
   name: string;
-  fieldOfWork: string;
+  university: string;
+  emailDate: string;
+  subject: string;
   selected?: boolean;
 }
 

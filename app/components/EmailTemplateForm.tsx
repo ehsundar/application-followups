@@ -21,7 +21,7 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
 
       // Check for valid variables in body
       if (field === 'body') {
-        const validVariables = ['{{name}}', '{{email}}', '{{field}}'];
+        const validVariables = ['{{name}}', '{{email}}', '{{university}}', '{{emailDate}}', '{{subject}}'];
         const matches = value.match(/{{[^}]+}}/g) || [];
         const invalidVariables = matches.filter(match => !validVariables.includes(match));
 
@@ -52,7 +52,7 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
           </label>
           <input
             type="text"
-            value={template.subject}
+            value={template?.subject || ''}
             onChange={(e) => handleChange('subject', e.target.value)}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors?.subject ? 'border-red-500' : 'border-gray-300'
@@ -69,13 +69,13 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
             Body
           </label>
           <textarea
-            value={template.body}
+            value={template?.body || ''}
             onChange={(e) => handleChange('body', e.target.value)}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors?.body ? 'border-red-500' : 'border-gray-300'
             }`}
             rows={6}
-            placeholder="Email body (use {{name}}, {{email}}, {{field}} for variables)"
+            placeholder="Email body (use {{name}}, {{email}}, {{university}}, {{emailDate}}, {{subject}} for variables)"
           />
           {errors?.body && (
             <p className="mt-1 text-sm text-red-600">{errors.body}</p>
@@ -87,7 +87,9 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
           <ul className="list-disc list-inside">
             <li><code>{'{{name}}'}</code> - Applicant's name</li>
             <li><code>{'{{email}}'}</code> - Applicant's email</li>
-            <li><code>{'{{field}}'}</code> - Applicant's field</li>
+            <li><code>{'{{university}}'}</code> - Applicant's university</li>
+            <li><code>{'{{emailDate}}'}</code> - Email date</li>
+            <li><code>{'{{subject}}'}</code> - Email subject</li>
           </ul>
         </div>
       </div>

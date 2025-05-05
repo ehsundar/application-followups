@@ -18,7 +18,7 @@ export function FileUpload({ onUpload }: FileUploadProps) {
       <p className="text-gray-600 mb-4">
         Please upload a CSV file with the following columns:
         <br />
-        email, name, field of work
+        University, Name, Email, EmailDate, Subject
       </p>
       <input
         type="file"
@@ -31,6 +31,18 @@ export function FileUpload({ onUpload }: FileUploadProps) {
           file:bg-blue-50 file:text-blue-700
           hover:file:bg-blue-100"
       />
+
+      <div className="mt-8 text-left">
+        <h3 className="text-lg font-medium mb-2">Sample CSV Format:</h3>
+        <pre className="bg-gray-800 p-4 rounded-lg overflow-x-auto text-sm text-gray-100 font-mono">
+          University,Name,Email,EmailDate,Subject{'\n'}
+          Harvard,Filipe De Carvalho,fcarvalho@bwh.harvard.edu,1404-1-17,urologic oncology{'\n'}
+          Stanford,John Smith,john.smith@stanford.edu,1404-1-18,cardiac surgery{'\n'}
+          MIT,Jane Doe,jane.doe@mit.edu,1404-1-19,neuroscience{'\n'}
+          Yale,Robert Johnson,robert.j@yale.edu,1404-1-20,immunology{'\n'}
+          Columbia,Sarah Williams,sarah.w@columbia.edu,1404-1-21,pediatric medicine
+        </pre>
+      </div>
     </div>
   );
 }
