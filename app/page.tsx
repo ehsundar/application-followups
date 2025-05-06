@@ -10,13 +10,13 @@ import { parseCSV } from './utils';
 export default function Home() {
   const router = useRouter();
   const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [step, setStep] = useState<'upload' | 'select'>('upload');
+  const [hasUploadedFile, setHasUploadedFile] = useState(false);
 
   const handleFileUpload = async (file: File) => {
     try {
       const parsedApplicants = await parseCSV(file);
       setApplicants(parsedApplicants);
-      setStep('select');
+      setHasUploadedFile(true);
     } catch (error) {
       console.error('Error parsing CSV:', error);
       alert('Error parsing CSV file. Please check the format and try again.');
@@ -36,7 +36,8 @@ export default function Home() {
         <button
           onClick={() => {
             localStorage.removeItem('selectedApplicants');
-            router.push('/');
+            setApplicants([]);
+            setHasUploadedFile(false);
           }}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
         >
@@ -44,20 +45,25 @@ export default function Home() {
         </button>
       </div>
 
-      {step === 'upload' ? (
-        <FileUpload onUpload={handleFileUpload} />
-      ) : (
-        <div>
+      <FileUpload onUpload={handleFileUpload} />
+
+      {hasUploadedFile && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Preview</h2>
           <ApplicantTable
             applicants={applicants}
             onApplicantsChange={setApplicants}
           />
-          <button
-            onClick={handleNext}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Next: Configure Email Templates
-          </button>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleNext}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer flex items-center gap-2"
+              aria-label="Configure Templates"
+            >
+              <span>Configure Templates</span>
+              <span className="text-xl">→</span>
+            </button>
+          </div>
         </div>
       )}
     </main>
