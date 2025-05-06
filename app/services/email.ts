@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer';
 
+// Interface for resume attachment
+interface ResumeAttachment {
+  fileName: string;
+  fileData: string; // base64 encoded file
+  fileType: string;
+}
+
 const USE_DUMMY_EMAILS = process.env.USE_DUMMY_EMAILS === 'true';
 
 // Function to create a transporter with given credentials or environment variables
@@ -19,7 +26,14 @@ function createTransporter(sourceEmail?: string, appKey?: string) {
   });
 }
 
-export async function sendEmail(to: string, subject: string, body: string, sourceEmail?: string, appKey?: string) {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  body: string,
+  sourceEmail?: string,
+  appKey?: string,
+  attachment?: ResumeAttachment | null
+) {
   try {
     if (USE_DUMMY_EMAILS) {
       // Simulate network delay
@@ -46,12 +60,32 @@ export async function sendEmail(to: string, subject: string, body: string, sourc
     const formattedBody = body.replace(/\n/g, '<br>');
     const transporter = createTransporter(sourceEmail, appKey);
 
-    const info = await transporter.sendMail({
+    // Create email options
+    const mailOptions: any = {
       from: sourceEmail || process.env.GMAIL_USER,
       to,
       subject,
       html: formattedBody,
-    });
+    };
+
+    // Add attachment if provided
+    if (attachment) {
+      // Extract the base64 data (remove the data:application/pdf;base64, part)
+      const base64Data = attachment.fileData.split(';base64,').pop();
+
+      if (base64Data) {
+        mailOptions.attachments = [
+          {
+            filename: attachment.fileName,
+            content: base64Data,
+            encoding: 'base64',
+            contentType: attachment.fileType
+          }
+        ];
+      }
+    }
+
+    const info = await transporter.sendMail(mailOptions);
 
     return { success: true, messageId: info.messageId };
   } catch (error) {

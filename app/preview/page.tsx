@@ -36,6 +36,12 @@ interface ValidationErrors {
   appKey?: string;
 }
 
+interface ResumeAttachment {
+  fileName: string;
+  fileData: string; // base64 encoded file
+  fileType: string;
+}
+
 export default function PreviewPage() {
   const router = useRouter();
   const [emailPreviews, setEmailPreviews] = useState<EmailPreview[]>([]);
@@ -47,6 +53,8 @@ export default function PreviewPage() {
   });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [showAppKey, setShowAppKey] = useState(false);
+  const [resumeAttachment, setResumeAttachment] = useState<ResumeAttachment | null>(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): string | undefined => {
@@ -74,6 +82,7 @@ export default function PreviewPage() {
     const storedApplicants = localStorage.getItem('selectedApplicants');
     const storedTemplates = localStorage.getItem('emailTemplates');
     const storedCredentials = localStorage.getItem('emailCredentials');
+    const storedResume = localStorage.getItem('resumeAttachment');
 
     if (storedCredentials) {
       const parsedCredentials = JSON.parse(storedCredentials) as EmailCredentials;
@@ -89,6 +98,15 @@ export default function PreviewPage() {
           sourceEmail: emailError,
           appKey: keyError
         });
+      }
+    }
+
+    if (storedResume) {
+      try {
+        const parsedResume = JSON.parse(storedResume) as ResumeAttachment;
+        setResumeAttachment(parsedResume);
+      } catch (error) {
+        console.error('Failed to parse stored resume', error);
       }
     }
 
@@ -148,6 +166,38 @@ export default function PreviewPage() {
     localStorage.setItem('emailCredentials', JSON.stringify(updatedCredentials));
   };
 
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is a PDF
+    if (file.type !== 'application/pdf') {
+      alert('Only PDF files are supported');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const fileData = event.target.result as string;
+        const newResume: ResumeAttachment = {
+          fileName: file.name,
+          fileData: fileData,
+          fileType: file.type
+        };
+
+        setResumeAttachment(newResume);
+        localStorage.setItem('resumeAttachment', JSON.stringify(newResume));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveResume = () => {
+    setResumeAttachment(null);
+    localStorage.removeItem('resumeAttachment');
+  };
+
   const handleSend = async () => {
     // Validate before sending
     const emailError = validateEmail(credentials.sourceEmail);
@@ -179,6 +229,7 @@ export default function PreviewPage() {
             body: preview.renderedBody,
             sourceEmail: credentials.sourceEmail,
             appKey: credentials.appKey,
+            attachment: resumeAttachment
           }),
         });
 
@@ -287,6 +338,108 @@ export default function PreviewPage() {
           </div>
         </form>
       </div>
+
+      <div className="mb-6 p-4 border rounded-lg bg-gray-50 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Resume Attachment (PDF only)</h2>
+        <div className="space-y-4">
+          {resumeAttachment ? (
+            <div className="flex items-center justify-between bg-white p-3 rounded border border-gray-300">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-gray-900">{resumeAttachment.fileName}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowPdfPreview(true)}
+                  className="text-blue-500 hover:text-blue-700"
+                  aria-label="Preview PDF"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleRemoveResume}
+                  className="text-red-500 hover:text-red-700"
+                  aria-label="Remove resume"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <label
+                htmlFor="resumeUpload"
+                className="flex justify-center items-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-100"
+              >
+                <div className="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="mt-2 block text-sm font-medium text-gray-700">
+                    Click to upload or drag and drop
+                  </span>
+                  <span className="mt-1 block text-xs text-gray-500">
+                    PDF files only, up to 10MB
+                  </span>
+                </div>
+              </label>
+              <input
+                id="resumeUpload"
+                name="resumeUpload"
+                type="file"
+                accept=".pdf,application/pdf"
+                className="sr-only"
+                onChange={handleResumeUpload}
+              />
+            </div>
+          )}
+          <p className="text-sm text-gray-600">
+            This PDF resume will be attached to all emails.
+          </p>
+        </div>
+      </div>
+
+      {/* PDF Preview Modal */}
+      {showPdfPreview && resumeAttachment && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] flex flex-col">
+            <div className="flex justify-between items-center p-3 border-b">
+              <h3 className="text-lg font-semibold">{resumeAttachment.fileName}</h3>
+              <button
+                onClick={() => setShowPdfPreview(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-1 h-full">
+              <iframe
+                src={resumeAttachment.fileData}
+                className="w-full h-full border-0"
+                title="Resume PDF Preview"
+                style={{ minHeight: "calc(95vh - 6rem)" }}
+              />
+            </div>
+            <div className="p-3 border-t flex justify-end">
+              <button
+                onClick={() => setShowPdfPreview(false)}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {emailPreviews.map((preview, index) => (

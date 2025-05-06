@@ -3,7 +3,7 @@ import { sendEmail } from '@/app/services/email';
 
 export async function POST(request: Request) {
   try {
-    const { to, subject, body, sourceEmail, appKey } = await request.json();
+    const { to, subject, body, sourceEmail, appKey, attachment } = await request.json();
 
     if (!to || !subject || !body) {
       return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await sendEmail(to, subject, body, sourceEmail, appKey);
+    const result = await sendEmail(to, subject, body, sourceEmail, appKey, attachment);
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error in email send endpoint:', error);
