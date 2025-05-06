@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 import { EmailTemplateForm } from '../components/EmailTemplateForm';
 import { EmailTemplate } from '../types';
 import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates, mapTemplatesToLabels } from '../utils';
@@ -141,12 +142,14 @@ export default function TemplatesPage() {
         ))}
       </div>
 
-      <button
-        onClick={handleNext}
-        className="mt-8 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Next: Preview Emails
-      </button>
+      <div className="flex justify-end mt-8">
+        <button
+          onClick={handleNext}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer flex items-center gap-2"
+        >
+          Preview Emails <ArrowRight size={16} />
+        </button>
+      </div>
     </main>
   );
 }
