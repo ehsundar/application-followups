@@ -20,54 +20,54 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
   };
 
   return (
-    <div className="border rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Template for {label}</h2>
+    <div className="border rounded-lg p-6 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Template for {label}</h2>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Subject
           </label>
           <input
             type="text"
             value={template?.subject || ''}
             onChange={(e) => handleChange('subject', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors?.subject ? 'border-red-500' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
+              errors?.subject ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
             }`}
             placeholder="Email subject"
           />
           {errors?.subject && (
-            <p className="mt-1 text-sm text-red-600">{errors.subject}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.subject}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Body
           </label>
           <textarea
             value={template?.body || ''}
             onChange={(e) => handleChange('body', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors?.body ? 'border-red-500' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
+              errors?.body ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
             }`}
             rows={6}
             placeholder="Email body (use {{name}}, {{email}}, {{university}}, {{emailDate}}, {{subject}} for variables)"
           />
           {errors?.body && (
-            <p className="mt-1 text-sm text-red-600">{errors.body}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.body}</p>
           )}
         </div>
 
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           <p>Available variables:</p>
           <ul className="list-disc list-inside">
-            <li><code>{'{{name}}'}</code> - Applicant&apos;s name</li>
-            <li><code>{'{{email}}'}</code> - Applicant&apos;s email</li>
-            <li><code>{'{{university}}'}</code> - Applicant&apos;s university</li>
-            <li><code>{'{{emailDate}}'}</code> - Email date</li>
-            <li><code>{'{{subject}}'}</code> - Email subject</li>
+            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{name}}'}</code> - Applicant&apos;s name</li>
+            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{email}}'}</code> - Applicant&apos;s email</li>
+            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{university}}'}</code> - Applicant&apos;s university</li>
+            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{emailDate}}'}</code> - Email date</li>
+            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{subject}}'}</code> - Email subject</li>
           </ul>
         </div>
       </div>

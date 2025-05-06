@@ -265,8 +265,8 @@ export default function PreviewPage() {
   if (emailPreviews.length === 0) {
     return (
       <main className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6">No Emails to Send</h1>
-        <p>No emails were configured for sending. Please go back and configure email templates.</p>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">No Emails to Send</h1>
+        <p className="text-gray-700 dark:text-gray-300">No emails were configured for sending. Please go back and configure email templates.</p>
       </main>
     );
   }
@@ -274,23 +274,23 @@ export default function PreviewPage() {
   return (
     <main className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Preview and Send Emails</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Preview and Send Emails</h1>
         <button
           onClick={() => {
             localStorage.removeItem('selectedApplicants');
             router.push('/');
           }}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700"
         >
           Start Over
         </button>
       </div>
 
-      <div className="mb-6 p-4 border rounded-lg bg-gray-50 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">Email Credentials</h2>
+      <div className="mb-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 shadow-sm border-gray-300 dark:border-gray-700">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Email Credentials</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div>
-            <label htmlFor="sourceEmail" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="sourceEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Gmail Address
             </label>
             <input
@@ -299,16 +299,16 @@ export default function PreviewPage() {
               name="sourceEmail"
               value={credentials.sourceEmail}
               onChange={handleCredentialsChange}
-              className={`mt-1 block w-full border ${validationErrors.sourceEmail ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm p-2 bg-white text-gray-900`}
+              className={`mt-1 block w-full border ${validationErrors.sourceEmail ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
               placeholder="your.email@gmail.com"
               autoComplete="username email"
             />
             {validationErrors.sourceEmail && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.sourceEmail}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.sourceEmail}</p>
             )}
           </div>
           <div>
-            <label htmlFor="appKey" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="appKey" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Gmail App Key
             </label>
             <div className="relative">
@@ -318,14 +318,14 @@ export default function PreviewPage() {
                 name="appKey"
                 value={credentials.appKey}
                 onChange={handleCredentialsChange}
-                className={`mt-1 block w-full border ${validationErrors.appKey ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm p-2 bg-white text-gray-900`}
+                className={`mt-1 block w-full border ${validationErrors.appKey ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
                 placeholder="Your app password"
                 autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowAppKey(!showAppKey)}
-                className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600 hover:text-gray-900"
+                className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 aria-label={showAppKey ? "Hide app key" : "Show app key"}
               >
                 {showAppKey ? (
@@ -341,24 +341,24 @@ export default function PreviewPage() {
               </button>
             </div>
             {validationErrors.appKey && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.appKey}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.appKey}</p>
             )}
             <div className="mt-1 flex items-start">
               <div className="group relative inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 w-64 z-10">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 dark:bg-gray-700 text-white text-xs rounded py-1 px-2 w-64 z-10">
                   App passwords are 16-character codes that give apps or devices permission to access your Google Account. You need to have 2-Step Verification enabled first.
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 You need to create an app password in your Google account settings.
                 <a
                   href="https://www.geeksforgeeks.org/setup-sending-email-in-django-project/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-1 text-blue-500 hover:text-blue-700 underline"
+                  className="ml-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
                 >
                   How to create an app password?
                 </a>
@@ -368,21 +368,21 @@ export default function PreviewPage() {
         </form>
       </div>
 
-      <div className="mb-6 p-4 border rounded-lg bg-gray-50 shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">Resume Attachment (PDF only)</h2>
+      <div className="mb-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 shadow-sm border-gray-300 dark:border-gray-700">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Resume Attachment (PDF only)</h2>
         <div className="space-y-4">
           {resumeAttachment ? (
-            <div className="flex items-center justify-between bg-white p-3 rounded border border-gray-300">
+            <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded border border-gray-300 dark:border-gray-600">
               <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 dark:text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-gray-900">{resumeAttachment.fileName}</span>
+                <span className="text-gray-900 dark:text-gray-100">{resumeAttachment.fileName}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowPdfPreview(true)}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                   aria-label="Preview PDF"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -392,7 +392,7 @@ export default function PreviewPage() {
                 </button>
                 <button
                   onClick={handleRemoveResume}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   aria-label="Remove resume"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -405,16 +405,16 @@ export default function PreviewPage() {
             <div className="flex flex-col">
               <label
                 htmlFor="resumeUpload"
-                className="flex justify-center items-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-100"
+                className="flex justify-center items-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <div className="text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
-                  <span className="mt-2 block text-sm font-medium text-gray-700">
+                  <span className="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Click to upload or drag and drop
                   </span>
-                  <span className="mt-1 block text-xs text-gray-500">
+                  <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
                     PDF files only, up to 10MB
                   </span>
                 </div>
@@ -429,7 +429,7 @@ export default function PreviewPage() {
               />
             </div>
           )}
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             This PDF resume will be attached to all emails.
           </p>
         </div>
@@ -438,19 +438,19 @@ export default function PreviewPage() {
       {/* PDF Preview Modal */}
       {showPdfPreview && resumeAttachment && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] flex flex-col">
-            <div className="flex justify-between items-center p-3 border-b">
-              <h3 className="text-lg font-semibold">{resumeAttachment.fileName}</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-[95vh] flex flex-col">
+            <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{resumeAttachment.fileName}</h3>
               <button
                 onClick={() => setShowPdfPreview(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto p-1 h-full">
+            <div className="flex-1 overflow-auto p-1 h-full bg-white dark:bg-gray-700">
               <iframe
                 src={resumeAttachment.fileData}
                 className="w-full h-full border-0"
@@ -458,10 +458,10 @@ export default function PreviewPage() {
                 style={{ minHeight: "calc(95vh - 6rem)" }}
               />
             </div>
-            <div className="p-3 border-t flex justify-end">
+            <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
               <button
                 onClick={() => setShowPdfPreview(false)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded"
               >
                 Close Preview
               </button>
@@ -472,40 +472,40 @@ export default function PreviewPage() {
 
       <div className="space-y-4">
         {emailPreviews.map((preview, index) => (
-          <div key={index} className="border rounded-lg">
-            <div className="w-full p-4 text-left flex justify-between items-center bg-gray-50">
+          <div key={index} className="border rounded-lg border-gray-300 dark:border-gray-700">
+            <div className="w-full p-4 text-left flex justify-between items-center bg-gray-50 dark:bg-gray-800">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{preview.applicant.name}</span>
-                <span className="text-gray-500">({preview.applicant.email})</span>
-                <span className="text-gray-500">- {preview.applicant.subject}</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{preview.applicant.name}</span>
+                <span className="text-gray-500 dark:text-gray-400">({preview.applicant.email})</span>
+                <span className="text-gray-500 dark:text-gray-400">- {preview.applicant.subject}</span>
                 {emailStatuses[index]?.loading && (
-                  <span className="text-blue-500">Sending...</span>
+                  <span className="text-blue-500 dark:text-blue-400">Sending...</span>
                 )}
                 {emailStatuses[index]?.success && (
-                  <span className="text-green-500">✓ Sent</span>
+                  <span className="text-green-500 dark:text-green-400">✓ Sent</span>
                 )}
                 {emailStatuses[index]?.error && (
-                  <span className="text-red-500">✗ Failed</span>
+                  <span className="text-red-500 dark:text-red-400">✗ Failed</span>
                 )}
               </div>
             </div>
 
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold">Subject</h2>
-                <p>{preview.renderedSubject}</p>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Subject</h2>
+                <p className="text-gray-700 dark:text-gray-300">{preview.renderedSubject}</p>
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold mb-2">Body</h2>
-                <div className="border rounded p-4 bg-white">
-                  <pre className="whitespace-pre-wrap text-gray-900">{preview.renderedBody}</pre>
+                <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Body</h2>
+                <div className="border rounded p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                  <pre className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">{preview.renderedBody}</pre>
                 </div>
               </div>
 
               {emailStatuses[index]?.error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
-                  <p className="text-red-600">{emailStatuses[index].error}</p>
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                  <p className="text-red-600 dark:text-red-400">{emailStatuses[index].error}</p>
                 </div>
               )}
             </div>
@@ -518,8 +518,8 @@ export default function PreviewPage() {
         disabled={isSending}
         className={`mt-8 px-4 py-2 text-white rounded ${
           isSending
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-blue-500 hover:bg-blue-600'
+            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
         }`}
       >
         {isSending ? 'Sending Emails...' : 'Send All Emails'}

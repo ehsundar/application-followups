@@ -30,7 +30,7 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
             };
             onApplicantsChange(newApplicants);
           }}
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          className="h-4 w-4 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 border-gray-300 dark:border-gray-600 rounded"
         />
       ),
     }),
@@ -59,14 +59,14 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
@@ -74,11 +74,11 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
             </tr>
           ))}
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           {table.getRowModel().rows.map(row => (
-            <tr key={row.id}>
+            <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
               {row.getVisibleCells().map(cell => (
-                <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
