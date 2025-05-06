@@ -343,9 +343,27 @@ export default function PreviewPage() {
             {validationErrors.appKey && (
               <p className="mt-1 text-sm text-red-600">{validationErrors.appKey}</p>
             )}
-            <p className="mt-1 text-sm text-gray-600">
-              You need to create an app password in your Google account settings.
-            </p>
+            <div className="mt-1 flex items-start">
+              <div className="group relative inline-block">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 w-64 z-10">
+                  App passwords are 16-character codes that give apps or devices permission to access your Google Account. You need to have 2-Step Verification enabled first.
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">
+                You need to create an app password in your Google account settings.
+                <a
+                  href="https://www.geeksforgeeks.org/setup-sending-email-in-django-project/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-1 text-blue-500 hover:text-blue-700 underline"
+                >
+                  How to create an app password?
+                </a>
+              </p>
+            </div>
           </div>
         </form>
       </div>
