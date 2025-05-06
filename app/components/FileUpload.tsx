@@ -1,10 +1,17 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface FileUploadProps {
   onUpload: (file: File) => void;
 }
 
 export function FileUpload({ onUpload }: FileUploadProps) {
+  const [hasExistingData, setHasExistingData] = useState(false);
+
+  useEffect(() => {
+    const storedApplicants = localStorage.getItem('selectedApplicants');
+    setHasExistingData(!!storedApplicants);
+  }, []);
+
   const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -20,6 +27,11 @@ export function FileUpload({ onUpload }: FileUploadProps) {
         <br />
         University, Name, Email, EmailDate, Subject
       </p>
+      {hasExistingData && (
+        <p className="text-amber-600 mb-4 font-medium">
+          Note: Uploading a new file will replace your existing data
+        </p>
+      )}
       <input
         type="file"
         accept=".csv"
