@@ -32,13 +32,66 @@ export function getUniqueLabels(applicants: Applicant[]): string[] {
   return Array.from(labels).sort();
 }
 
-export function renderEmailTemplate(template: string, applicant: Applicant): string {
-  return template
-    .replace('{{name}}', applicant.name)
-    .replace('{{email}}', applicant.email)
-    .replace('{{university}}', applicant.university)
-    .replace('{{emailDate}}', applicant.emailDate)
-    .replace('{{subject}}', applicant.subject);
+export interface TemplateVariable {
+  description: string;
+  getValue: (applicant: Applicant) => string;
+}
+
+export interface TemplateVariables {
+  [key: string]: TemplateVariable;
+}
+
+export const defaultTemplateVariables: TemplateVariables = {
+  name: {
+    description: "Applicant's full name",
+    getValue: (applicant: Applicant) => applicant.name
+  },
+  email: {
+    description: "Applicant's email",
+    getValue: (applicant: Applicant) => applicant.email
+  },
+  university: {
+    description: "Applicant's university",
+    getValue: (applicant: Applicant) => applicant.university
+  },
+  emailDate: {
+    description: "Email date",
+    getValue: (applicant: Applicant) => applicant.emailDate
+  },
+  subject: {
+    description: "Email subject",
+    getValue: (applicant: Applicant) => applicant.subject
+  },
+  firstName: {
+    description: "Applicant's first name",
+    getValue: (applicant: Applicant) => {
+      const nameParts = applicant.name.split(' ');
+      return nameParts[0] || '';
+    }
+  },
+  lastName: {
+    description: "Applicant's last name",
+    getValue: (applicant: Applicant) => {
+      const nameParts = applicant.name.split(' ');
+      return nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+    }
+  }
+};
+
+export function getTemplateVariablePlaceholder(variables: TemplateVariables = defaultTemplateVariables): string {
+  return `Email body (use ${Object.keys(variables).map(key => `{{${key}}}`).join(', ')} for variables)`;
+}
+
+export function renderEmailTemplate(template: string, applicant: Applicant, variables: TemplateVariables = defaultTemplateVariables): string {
+  let result = template;
+
+  // Process all variables
+  Object.entries(variables).forEach(([key, variable]) => {
+    const value = variable.getValue(applicant);
+    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+  });
+
+  return result;
 }
 
 export function saveEmailTemplates(templates: EmailTemplate[]) {

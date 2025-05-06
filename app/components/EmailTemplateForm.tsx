@@ -1,4 +1,5 @@
 import { EmailTemplate } from '../types';
+import { defaultTemplateVariables, getTemplateVariablePlaceholder } from '../utils';
 
 interface EmailTemplateFormProps {
   label: string;
@@ -17,6 +18,16 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
       [field]: value
     };
     onChange(newTemplate);
+  };
+
+  // Generate variable list from defaultTemplateVariables
+  const renderVariableList = () => {
+    return Object.entries(defaultTemplateVariables).map(([key, variable]) => (
+      <li key={key}>
+        <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{`{{${key}}}`}</code>
+        {' - '}{variable.description}
+      </li>
+    ));
   };
 
   return (
@@ -53,7 +64,7 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
               errors?.body ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
             }`}
             rows={6}
-            placeholder="Email body (use {{name}}, {{email}}, {{university}}, {{emailDate}}, {{subject}} for variables)"
+            placeholder={getTemplateVariablePlaceholder()}
           />
           {errors?.body && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.body}</p>
@@ -63,11 +74,7 @@ export function EmailTemplateForm({ label, template, onChange, errors }: EmailTe
         <div className="text-sm text-gray-500 dark:text-gray-400">
           <p>Available variables:</p>
           <ul className="list-disc list-inside">
-            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{name}}'}</code> - Applicant&apos;s name</li>
-            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{email}}'}</code> - Applicant&apos;s email</li>
-            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{university}}'}</code> - Applicant&apos;s university</li>
-            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{emailDate}}'}</code> - Email date</li>
-            <li><code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{'{{subject}}'}</code> - Email subject</li>
+            {renderVariableList()}
           </ul>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { renderEmailTemplate } from '../utils';
+import { renderEmailTemplate, defaultTemplateVariables } from '../utils';
 
 interface EmailStatus {
   loading: boolean;
@@ -128,8 +128,8 @@ export default function PreviewPage() {
             previews.push({
               applicant,
               template,
-              renderedBody: renderEmailTemplate(template.body, applicant),
-              renderedSubject: renderEmailTemplate(template.subject, applicant)
+              renderedBody: renderEmailTemplate(template.body, applicant, defaultTemplateVariables),
+              renderedSubject: renderEmailTemplate(template.subject, applicant, defaultTemplateVariables)
             });
           }
         }

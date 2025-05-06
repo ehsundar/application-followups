@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { EmailTemplateForm } from '../components/EmailTemplateForm';
 import { EmailTemplate } from '../types';
-import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates, mapTemplatesToLabels } from '../utils';
+import { getUniqueLabels, loadEmailTemplates, saveEmailTemplates, mapTemplatesToLabels, defaultTemplateVariables } from '../utils';
 
 interface TemplateErrors {
   [key: number]: {
@@ -58,7 +58,7 @@ export default function TemplatesPage() {
 
     // Check for valid variables in body
     if (template.body) {
-      const validVariables = ['{{name}}', '{{email}}', '{{university}}', '{{emailDate}}', '{{subject}}'];
+      const validVariables = Object.keys(defaultTemplateVariables).map(key => `{{${key}}}`);
       const matches = template.body.match(/{{[^}]+}}/g) || [];
       const invalidVariables = matches.filter(match => !validVariables.includes(match));
 
