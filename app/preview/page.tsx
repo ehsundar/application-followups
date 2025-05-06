@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { EmailPreview } from '../types';
 import { renderEmailTemplate } from '../utils';
 
 interface EmailStatus {
@@ -40,6 +39,13 @@ interface ResumeAttachment {
   fileName: string;
   fileData: string; // base64 encoded file
   fileType: string;
+}
+
+interface EmailPreview {
+  applicant: Applicant;
+  template: Template;
+  renderedBody: string;
+  renderedSubject: string;
 }
 
 export default function PreviewPage() {
@@ -122,7 +128,8 @@ export default function PreviewPage() {
             previews.push({
               applicant,
               template,
-              renderedBody: renderEmailTemplate(template.body, applicant)
+              renderedBody: renderEmailTemplate(template.body, applicant),
+              renderedSubject: renderEmailTemplate(template.subject, applicant)
             });
           }
         }
@@ -225,7 +232,7 @@ export default function PreviewPage() {
           },
           body: JSON.stringify({
             to: preview.applicant.email,
-            subject: preview.template.subject,
+            subject: preview.renderedSubject,
             body: preview.renderedBody,
             sourceEmail: credentials.sourceEmail,
             appKey: credentials.appKey,
@@ -468,7 +475,7 @@ export default function PreviewPage() {
             <div className="p-4 border-t">
               <div className="mb-4">
                 <h2 className="text-lg font-semibold">Subject</h2>
-                <p>{preview.template.subject}</p>
+                <p>{preview.renderedSubject}</p>
               </div>
 
               <div>
