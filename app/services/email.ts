@@ -7,6 +7,20 @@ interface ResumeAttachment {
   fileType: string;
 }
 
+// Define email options interface
+interface MailOptions {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: {
+    filename: string;
+    content: string;
+    encoding: string;
+    contentType: string;
+  }[];
+}
+
 const USE_DUMMY_EMAILS = process.env.USE_DUMMY_EMAILS === 'true';
 const MAX_ATTACHMENT_SIZE_MB = 10; // 10 MB max attachment size
 
@@ -56,7 +70,7 @@ export async function sendEmail(
     const transporter = createTransporter(sourceEmail, appKey);
 
     // Create email options
-    const mailOptions: any = {
+    const mailOptions: MailOptions = {
       from: sourceEmail,
       to,
       subject,

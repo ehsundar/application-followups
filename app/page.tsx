@@ -56,7 +56,7 @@ export default function Home() {
     if (hasUploadedFile && applicants.length > 0) {
       saveCurrentApplicants();
     }
-  }, [applicants, hasUploadedFile]);
+  }, [applicants, hasUploadedFile, saveCurrentApplicants]);
 
   return (
     <main className="container mx-auto p-4">

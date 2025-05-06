@@ -149,7 +149,7 @@ export default function PreviewPage() {
     setCredentials(updatedCredentials);
 
     // Validate on change
-    let newErrors = { ...validationErrors };
+    const newErrors = { ...validationErrors };
 
     if (name === 'sourceEmail') {
       const error = validateEmail(value);
