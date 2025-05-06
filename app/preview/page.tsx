@@ -233,8 +233,12 @@ export default function PreviewPage() {
           }),
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-          throw new Error(`Failed to send email to ${preview.applicant.email}`);
+          // Extract detailed error message from the API response
+          const errorMessage = responseData.error || `Failed to send email to ${preview.applicant.email}`;
+          throw new Error(errorMessage);
         }
 
         newStatuses[i] = { loading: false, error: '', success: true };

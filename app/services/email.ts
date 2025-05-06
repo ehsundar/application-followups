@@ -8,20 +8,15 @@ interface ResumeAttachment {
 }
 
 const USE_DUMMY_EMAILS = process.env.USE_DUMMY_EMAILS === 'true';
+const MAX_ATTACHMENT_SIZE_MB = 10; // 10 MB max attachment size
 
-// Function to create a transporter with given credentials or environment variables
-function createTransporter(sourceEmail?: string, appKey?: string) {
-  const useProvidedCredentials = sourceEmail && appKey;
-
-  if (!USE_DUMMY_EMAILS && !useProvidedCredentials && (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)) {
-    throw new Error('Gmail credentials are not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables or provide credentials.');
-  }
-
+// Function to create a transporter with given credentials
+function createTransporter(sourceEmail: string, appKey: string) {
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: useProvidedCredentials ? sourceEmail : process.env.GMAIL_USER,
-      pass: useProvidedCredentials ? appKey : process.env.GMAIL_APP_PASSWORD,
+      user: sourceEmail,
+      pass: appKey,
     },
   });
 }
@@ -30,8 +25,8 @@ export async function sendEmail(
   to: string,
   subject: string,
   body: string,
-  sourceEmail?: string,
-  appKey?: string,
+  sourceEmail: string,
+  appKey: string,
   attachment?: ResumeAttachment | null
 ) {
   try {
@@ -62,7 +57,7 @@ export async function sendEmail(
 
     // Create email options
     const mailOptions: any = {
-      from: sourceEmail || process.env.GMAIL_USER,
+      from: sourceEmail,
       to,
       subject,
       html: formattedBody,
@@ -70,10 +65,23 @@ export async function sendEmail(
 
     // Add attachment if provided
     if (attachment) {
+      // Validate attachment file type
+      if (attachment.fileType !== 'application/pdf') {
+        throw new Error('Invalid attachment: Only PDF files are allowed');
+      }
+
       // Extract the base64 data (remove the data:application/pdf;base64, part)
       const base64Data = attachment.fileData.split(';base64,').pop();
 
       if (base64Data) {
+        // Check attachment size (base64 encoded size is roughly 4/3 of the original)
+        const sizeInBytes = Math.ceil((base64Data.length * 3) / 4);
+        const sizeInMB = sizeInBytes / (1024 * 1024);
+
+        if (sizeInMB > MAX_ATTACHMENT_SIZE_MB) {
+          throw new Error(`Attachment size exceeds maximum allowed size of ${MAX_ATTACHMENT_SIZE_MB}MB`);
+        }
+
         mailOptions.attachments = [
           {
             filename: attachment.fileName,
