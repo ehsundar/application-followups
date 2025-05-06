@@ -2,19 +2,24 @@ import nodemailer from 'nodemailer';
 
 const USE_DUMMY_EMAILS = process.env.USE_DUMMY_EMAILS === 'true';
 
-if (!USE_DUMMY_EMAILS && (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)) {
-  throw new Error('Gmail credentials are not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.');
+// Function to create a transporter with given credentials or environment variables
+function createTransporter(sourceEmail?: string, appKey?: string) {
+  const useProvidedCredentials = sourceEmail && appKey;
+
+  if (!USE_DUMMY_EMAILS && !useProvidedCredentials && (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD)) {
+    throw new Error('Gmail credentials are not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables or provide credentials.');
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: useProvidedCredentials ? sourceEmail : process.env.GMAIL_USER,
+      pass: useProvidedCredentials ? appKey : process.env.GMAIL_APP_PASSWORD,
+    },
+  });
 }
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
-
-export async function sendEmail(to: string, subject: string, body: string) {
+export async function sendEmail(to: string, subject: string, body: string, sourceEmail?: string, appKey?: string) {
   try {
     if (USE_DUMMY_EMAILS) {
       // Simulate network delay
@@ -39,9 +44,10 @@ export async function sendEmail(to: string, subject: string, body: string) {
     }
 
     const formattedBody = body.replace(/\n/g, '<br>');
+    const transporter = createTransporter(sourceEmail, appKey);
 
     const info = await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      from: sourceEmail || process.env.GMAIL_USER,
       to,
       subject,
       html: formattedBody,
