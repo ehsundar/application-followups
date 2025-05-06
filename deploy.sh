@@ -14,6 +14,6 @@ rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.next/cache' --e
 
 # Install dependencies and start the service
 echo "Installing dependencies and starting service..."
-ssh htz "cd /root/application-followups && pnpm install --prod && sudo systemctl restart application-followups"
+ssh htz "cd /root/application-followups && source ~/.zshrc && pnpm install --prod && sudo systemctl restart application-followups"
 
 echo "Deployment complete!"
