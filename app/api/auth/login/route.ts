@@ -1,48 +1,53 @@
 import { NextResponse } from 'next/server';
-import { users } from '@/app/config/auth';
-import { cookies } from 'next/headers';
+import { prisma } from '@/app/lib/prisma';
+import { sendVerificationCode } from '@/app/services/email';
+
+function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
-    const user = users.find(u => u.username === username && u.password === password);
+    const { email } = await request.json();
 
-    if (user) {
-      // Set cookies to store authentication and user info
-      const cookieStore = await cookies();
-      cookieStore.set('auth', 'true', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24, // 1 day
-      });
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
 
-      cookieStore.set('user', JSON.stringify({
-        username: user.username,
-        name: user.name
-      }), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24, // 1 day
-      });
-
-      return NextResponse.json({
-        success: true,
-        user: {
-          username: user.username,
-          name: user.name
-        }
+    // Find or create user
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: email.split('@')[0], // Default name from email
+        },
       });
     }
 
+    // Generate and save verification code
+    const code = generateVerificationCode();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await prisma.verificationCode.create({
+      data: {
+        code,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+
+    // Send verification code via email
+    await sendVerificationCode(email, code);
+
+    return NextResponse.json({ message: 'Verification code sent' });
+  } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Invalid credentials' },
-      { status: 401 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: 'An error occurred' },
+      { error: 'Failed to process login request' },
       { status: 500 }
     );
   }

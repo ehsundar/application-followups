@@ -42,3 +42,6 @@ next-env.d.ts
 
 # credentials
 app/config/credentials.json
+
+# generated
+app/generated

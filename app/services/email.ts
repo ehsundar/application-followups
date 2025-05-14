@@ -115,3 +115,29 @@ export async function sendEmail(
     throw error;
   }
 }
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SUPPORT_GMAIL_ADDRESS,
+    pass: process.env.SUPPORT_GMAIL_PASSWORD,
+  },
+});
+
+export async function sendVerificationCode(to: string, code: string) {
+  const mailOptions = {
+    from: process.env.SUPPORT_GMAIL_ADDRESS,
+    to,
+    subject: 'Login Verification Code',
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Your Verification Code</h2>
+        <p>Use the following code to log in:</p>
+        <h1 style="font-size: 32px; letter-spacing: 5px; color: #4a5568;">${code}</h1>
+        <p>This code will expire in 10 minutes.</p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
