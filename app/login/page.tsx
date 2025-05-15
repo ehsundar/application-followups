@@ -21,7 +21,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email + '@gmail.com' }),
       });
       if (response.ok) {
         setStep(2);
@@ -70,21 +70,26 @@ export default function LoginPage() {
         {step === 1 && (
           <form className="mt-8 space-y-6" onSubmit={handleEmailSubmit}>
             <div className="rounded-md shadow-sm -space-y-px">
-              <div>
+              <div className="flex items-center">
                 <label htmlFor="email" className="sr-only">
-                  Email
+                  Gmail
                 </label>
                 <input
                   id="email"
                   name="email"
-                  type="email"
+                  type="text"
                   required
-                  className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
+                  className="appearance-none rounded-l relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Your Gmail username"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.replace(/@.*/, ''))}
                   disabled={loading}
+                  pattern="^[^@\s]+$"
+                  autoComplete="username"
                 />
+                <span className="inline-block px-2 py-2 border-t border-b border-r border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 rounded-r text-gray-700 dark:text-gray-200 text-sm select-none">
+                  @gmail.com
+                </span>
               </div>
             </div>
             {error && (

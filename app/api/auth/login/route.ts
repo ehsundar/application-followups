@@ -17,6 +17,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!email.endsWith('@gmail.com')) {
+      return NextResponse.json(
+        { error: 'Only Gmail addresses are supported' },
+        { status: 400 }
+      );
+    }
+
     // Find or create user
     let user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
