@@ -6,6 +6,7 @@ import { SignJWT } from 'jose';
 export async function POST(request: Request) {
   try {
     const { email, code } = await request.json();
+    const isDev = process.env.NODE_ENV === 'development';
 
     if (!email || !code) {
       return NextResponse.json(
@@ -34,18 +35,20 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!user || user.verifications.length === 0) {
+    if (!user || (!isDev && user.verifications.length === 0)) {
       return NextResponse.json(
         { error: 'Invalid or expired verification code' },
         { status: 400 }
       );
     }
 
-    // Mark verification code as used
-    await prisma.verificationCode.update({
-      where: { id: user.verifications[0].id },
-      data: { used: true },
-    });
+    if (!isDev && user.verifications.length > 0) {
+      // Mark verification code as used
+      await prisma.verificationCode.update({
+        where: { id: user.verifications[0].id },
+        data: { used: true },
+      });
+    }
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
     const token = await new SignJWT({ id: user.id, email: user.email })

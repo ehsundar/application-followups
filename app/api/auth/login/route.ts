@@ -9,26 +9,29 @@ function generateVerificationCode(): string {
 export async function POST(request: Request) {
   try {
     const { email, recaptchaToken } = await request.json();
+    const isDev = process.env.NODE_ENV === 'development';
 
-    if (!recaptchaToken) {
-      return NextResponse.json(
-        { error: 'reCAPTCHA token is required' },
-        { status: 400 }
-      );
-    }
+    if (!isDev) {
+      if (!recaptchaToken) {
+        return NextResponse.json(
+          { error: 'reCAPTCHA token is required' },
+          { status: 400 }
+        );
+      }
 
-    // Verify reCAPTCHA token
-    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyData.success || verifyData.score < 0.5) {
-      return NextResponse.json(
-        { error: 'reCAPTCHA verification failed' },
-        { status: 400 }
-      );
+      // Verify reCAPTCHA token
+      const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success || verifyData.score < 0.5) {
+        return NextResponse.json(
+          { error: 'reCAPTCHA verification failed' },
+          { status: 400 }
+        );
+      }
     }
 
     if (!email) {
@@ -68,9 +71,11 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send verification code via email
-    await sendVerificationCode(email, code);
-    console.log('Verification code:', code);
+    if (isDev) {
+      console.log('Verification code:', code);
+    } else {
+      await sendVerificationCode(email, code);
+    }
 
     return NextResponse.json({ message: 'Verification code sent' });
   } catch (error) {

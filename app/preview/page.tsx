@@ -85,6 +85,17 @@ export default function PreviewPage() {
   };
 
   useEffect(() => {
+    async function fetchUser() {
+      const res = await fetch('/api/init');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user && data.user.email) {
+          setCredentials((prev) => ({ ...prev, sourceEmail: data.user.email }));
+        }
+      }
+    }
+    fetchUser();
+
     const storedApplicants = localStorage.getItem('selectedApplicants');
     const storedTemplates = localStorage.getItem('emailTemplates');
     const storedCredentials = localStorage.getItem('emailCredentials');
@@ -299,9 +310,10 @@ export default function PreviewPage() {
               name="sourceEmail"
               value={credentials.sourceEmail}
               onChange={handleCredentialsChange}
-              className={`mt-1 block w-full border ${validationErrors.sourceEmail ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+              className={`mt-1 block w-full border ${validationErrors.sourceEmail ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:cursor-not-allowed`}
               placeholder="your.email@gmail.com"
               autoComplete="username email"
+              disabled
             />
             {validationErrors.sourceEmail && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.sourceEmail}</p>
