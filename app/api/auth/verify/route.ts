@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
     const token = await new SignJWT({ id: user.id, email: user.email })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('7d')
+      .setExpirationTime('180d')
       .sign(secret);
 
     const cookieStore = await cookies();

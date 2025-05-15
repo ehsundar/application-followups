@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     });
 
     // Send verification code via email
-    // await sendVerificationCode(email, code);
+    await sendVerificationCode(email, code);
     console.log('Verification code:', code);
 
     return NextResponse.json({ message: 'Verification code sent' });
