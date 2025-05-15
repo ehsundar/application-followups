@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendEmail } from '@/app/services/email';
+import { getUserFromAuthCookie } from '@/app/lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +17,23 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Missing credentials: sourceEmail and appKey are required' },
         { status: 400 }
+      );
+    }
+
+    // Use helper to get logged-in user's email
+    let userPayload;
+    try {
+      userPayload = await getUserFromAuthCookie();
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+    if (userPayload.email !== sourceEmail) {
+      return NextResponse.json(
+        { error: 'Provided email does not match the logged-in user' },
+        { status: 403 }
       );
     }
 
