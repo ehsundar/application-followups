@@ -1,17 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
 export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get('auth');
   const isLoginPage = request.nextUrl.pathname === '/login';
 
-  // If user is not authenticated and not on login page, redirect to login
-  if (!authCookie && !isLoginPage) {
+  let isAuthenticated = false;
+  if (authCookie) {
+    try {
+      jwt.verify(authCookie.value, process.env.JWT_SECRET!);
+      isAuthenticated = true;
+    } catch {
+      isAuthenticated = false;
+    }
+  }
+
+  if (!isAuthenticated && !isLoginPage) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If user is authenticated and on login page, redirect to home
-  if (authCookie && isLoginPage) {
+  if (isAuthenticated && isLoginPage) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

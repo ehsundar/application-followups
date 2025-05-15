@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
 
 export async function POST(request: Request) {
   try {
@@ -46,24 +47,19 @@ export async function POST(request: Request) {
       data: { used: true },
     });
 
-    // Set cookies for authentication
-    const cookieStore = cookies();
-    cookieStore.set('auth', 'true', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 1 day
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    );
 
-    cookieStore.set('user', JSON.stringify({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    }), {
+    const cookieStore = await cookies();
+    cookieStore.set('auth', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 1 day
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
     });
 
     return NextResponse.json({
