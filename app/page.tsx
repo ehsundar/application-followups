@@ -28,6 +28,18 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    fetch('/api/init')
+      .then((res) => {
+        if (res.status !== 200) {
+          router.push('/login');
+        }
+      })
+      .catch(() => {
+        router.push('/login');
+      });
+  }, [router]);
+
   const handleFileUpload = async (file: File) => {
     try {
       const parsedApplicants = await parseCSV(file);
