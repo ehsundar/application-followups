@@ -1,15 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
+  const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const inputRefs: React.RefObject<HTMLInputElement | null>[] = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,17 +43,48 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  const handleCodeChange = (idx: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return;
+    const newDigits = [...codeDigits];
+    newDigits[idx] = value;
+    setCodeDigits(newDigits);
+    if (value && idx < 5) {
+      inputRefs[idx + 1].current?.focus();
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const paste = e.clipboardData.getData('text');
+    if (/^\d{6}$/.test(paste)) {
+      setCodeDigits(paste.split(''));
+      inputRefs[5].current?.focus();
+      e.preventDefault();
+    }
+  };
+
+  const handleCodeKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !codeDigits[idx] && idx > 0) {
+      inputRefs[idx - 1].current?.focus();
+    }
+  };
+
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const code = codeDigits.join('');
+    if (!/^\d{6}$/.test(code)) {
+      setError('Please enter the 6-digit code.');
+      setLoading(false);
+      return;
+    }
     try {
       const response = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email: email + '@gmail.com', code }),
       });
       if (response.ok) {
         router.push('/');
@@ -108,23 +147,24 @@ export default function LoginPage() {
         )}
         {step === 2 && (
           <form className="mt-8 space-y-6" onSubmit={handleCodeSubmit}>
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="code" className="sr-only">
-                  Verification Code
-                </label>
+            <div className="rounded-md shadow-sm flex gap-2 justify-center">
+              {codeDigits.map((digit, idx) => (
                 <input
-                  id="code"
-                  name="code"
+                  key={idx}
+                  ref={inputRefs[idx]}
                   type="text"
-                  required
-                  className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter verification code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  inputMode="numeric"
+                  pattern="[0-9]{1}"
+                  maxLength={1}
+                  className="w-10 h-12 text-center text-2xl border border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  value={digit}
+                  onChange={e => handleCodeChange(idx, e.target.value)}
+                  onPaste={handleCodePaste}
+                  onKeyDown={e => handleCodeKeyDown(idx, e)}
                   disabled={loading}
+                  autoFocus={idx === 0}
                 />
-              </div>
+              ))}
             </div>
             {error && (
               <div className="text-red-500 dark:text-red-400 text-sm text-center">{error}</div>
