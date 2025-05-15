@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-// @ts-expect-error: next-recaptcha-v3 has no types
 import { useReCaptcha } from 'next-recaptcha-v3';
 
 export default function LoginPage() {

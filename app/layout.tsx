@@ -72,8 +72,6 @@ export const viewport = {
   maximumScale: 1,
 };
 
-export const themeColor = "#0070f3";
-
 export default function RootLayout({
   children,
 }: Readonly<{
