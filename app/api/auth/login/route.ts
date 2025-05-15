@@ -8,7 +8,28 @@ function generateVerificationCode(): string {
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const { email, recaptchaToken } = await request.json();
+
+    if (!recaptchaToken) {
+      return NextResponse.json(
+        { error: 'reCAPTCHA token is required' },
+        { status: 400 }
+      );
+    }
+
+    // Verify reCAPTCHA token
+    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success || verifyData.score < 0.5) {
+      return NextResponse.json(
+        { error: 'reCAPTCHA verification failed' },
+        { status: 400 }
+      );
+    }
 
     if (!email) {
       return NextResponse.json(

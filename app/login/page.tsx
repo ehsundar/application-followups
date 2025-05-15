@@ -2,6 +2,8 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+// @ts-ignore
+import { useReCaptcha } from 'next-recaptcha-v3';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,18 +20,20 @@ export default function LoginPage() {
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
   ];
+  const { executeRecaptcha } = useReCaptcha();
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
+      const token = await executeRecaptcha('login_submit');
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email + '@gmail.com' }),
+        body: JSON.stringify({ email: email + '@gmail.com', recaptchaToken: token }),
       });
       if (response.ok) {
         setStep(2);
