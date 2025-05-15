@@ -31,6 +31,7 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/init')
       .then((res) => {
+        console.log('Not authenticated, redirecting to login', res.status);
         if (res.status !== 200) {
           router.push('/login');
         }

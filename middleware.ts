@@ -1,27 +1,36 @@
+'use server';
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 
-export function middleware(request: NextRequest) {
+const unprotectedRoutes = [
+  '/api/auth/login',
+  '/api/auth/verify',
+];
+
+export async function middleware(request: NextRequest) {
+  const isUnprotectedRoute = unprotectedRoutes.includes(request.nextUrl.pathname);
+
+  if (isUnprotectedRoute) {
+    return NextResponse.next();
+  }
+
   const authCookie = request.cookies.get('auth');
-  const isLoginPage = request.nextUrl.pathname === '/login';
-
   let isAuthenticated = false;
+
   if (authCookie) {
     try {
-      jwt.verify(authCookie.value, process.env.JWT_SECRET!);
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      await jwtVerify(authCookie.value, secret);
       isAuthenticated = true;
-    } catch {
+    } catch (error) {
       isAuthenticated = false;
     }
   }
 
-  if (!isAuthenticated && !isLoginPage) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  if (isAuthenticated && isLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+  if (!isAuthenticated) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
   return NextResponse.next();
@@ -29,6 +38,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/api/(.*)',
   ],
 };
