@@ -40,11 +40,6 @@ export const metadata: Metadata = {
     title: "Application Followups",
     description: "Track and manage your application followups efficiently",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
   robots: {
     index: true,
     follow: true,
@@ -63,13 +58,20 @@ export const metadata: Metadata = {
       { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#0070f3" }
     ]
   },
-  themeColor: "#0070f3",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Application Followups"
   },
 };
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+export const themeColor = "#0070f3";
 
 export default function RootLayout({
   children,

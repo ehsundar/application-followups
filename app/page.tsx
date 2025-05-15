@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileUpload } from './components/FileUpload';
 import { ApplicantTable } from './components/ApplicantTable';
@@ -60,9 +60,9 @@ export default function Home() {
   };
 
   // Add a function to save current applicants to localStorage
-  const saveCurrentApplicants = () => {
+  const saveCurrentApplicants = useCallback(() => {
     localStorage.setItem('selectedApplicants', JSON.stringify(applicants));
-  };
+  }, [applicants]);
 
   // Save applicants whenever they change
   useEffect(() => {
