@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Build the project
 echo "Building the project..."
 pnpm build
