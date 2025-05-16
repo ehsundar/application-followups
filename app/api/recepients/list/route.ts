@@ -13,9 +13,9 @@ export async function GET() {
       include: { _count: { select: { recipients: true } } },
       orderBy: { createdAt: 'desc' },
     });
-    return NextResponse.json(lists.map(list => ({
+    return NextResponse.json(lists.map((list: any) => ({
       id: list.id,
-      name: list.name,
+      name: list.name && list.name.trim() ? list.name : 'Untitled List',
       count: list._count.recipients,
       createdAt: list.createdAt,
       updatedAt: list.updatedAt,

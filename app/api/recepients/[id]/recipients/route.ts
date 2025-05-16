@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { getUserFromAuthCookie } from '@/app/lib/auth';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: { id: string } }) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+    const { params } = await context;
     const listId = params.id;
     const list = await prisma.recipientList.findUnique({
       where: { id: listId, userId: user.id },
