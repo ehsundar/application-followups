@@ -203,68 +203,94 @@ export default function Recepients() {
         <div className="md:w-1/3 md:min-w-[220px] md:max-w-[340px] md:border-r px-0 md:px-4 mb-6 md:mb-0 flex-shrink-0">
           <div className="mb-6">
             <div className="font-semibold mb-2">Your Lists</div>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''} cursor-pointer`}
-                  onClick={() => {
-                    setSelectedListId('new');
-                    setFileUploadKey(k => k + 1);
-                  }}
-                >
-                  + New List
-                </button>
-              </li>
-              {lists.map((list: RecipientListMeta) => (
-                <li key={list.id} className="flex items-center gap-2 group">
+            {listsLoading ? (
+              <ul className="space-y-2">
+                <li>
                   <button
-                    className={`flex-1 text-left px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 ${selectedListId === list.id ? 'bg-blue-200 dark:bg-blue-800 font-bold' : ''} cursor-pointer`}
-                    onClick={() => setSelectedListId(list.id)}
-                  >
-                    {renamingListId === list.id ? (
-                      <input
-                        className="border rounded px-2 py-1 w-32"
-                        value={renameValue}
-                        onChange={e => setRenameValue(e.target.value)}
-                        onBlur={() => handleRenameList(list.id, renameValue)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') handleRenameList(list.id, renameValue);
-                          if (e.key === 'Escape') setRenamingListId(null);
-                        }}
-                        autoFocus
-                      />
-                    ) : (
-                      <span>{list.name}</span>
-                    )}
-                    <span className="text-xs text-gray-500">({list.count})</span>
-                  </button>
-                  <button
-                    className="text-xs text-blue-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
-                    title="Rename"
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''} cursor-pointer`}
                     onClick={() => {
-                      setRenamingListId(list.id);
-                      setRenameValue(list.name);
+                      setSelectedListId('new');
+                      setFileUploadKey(k => k + 1);
                     }}
-                  ><Pencil size={16} /></button>
-                  <button
-                    className="text-xs text-red-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
-                    title="Delete"
-                    onClick={() => handleDeleteList(list.id)}
-                  ><Trash2 size={16} /></button>
+                  >
+                    + New List
+                  </button>
                 </li>
-              ))}
-            </ul>
+                {[...Array(7)].map((_, i) => (
+                  <li key={i} className="animate-pulse px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 w-full h-8" />
+                ))}
+              </ul>
+            ) : (
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''} cursor-pointer`}
+                    onClick={() => {
+                      setSelectedListId('new');
+                      setFileUploadKey(k => k + 1);
+                    }}
+                  >
+                    + New List
+                  </button>
+                </li>
+                {lists.map((list: RecipientListMeta) => (
+                  <li key={list.id} className="flex items-center gap-2 group">
+                    <button
+                      className={`flex-1 text-left px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 ${selectedListId === list.id ? 'bg-blue-200 dark:bg-blue-800 font-bold' : ''} cursor-pointer`}
+                      onClick={() => setSelectedListId(list.id)}
+                    >
+                      {renamingListId === list.id ? (
+                        <input
+                          className="border rounded px-2 py-1 w-32"
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onBlur={() => handleRenameList(list.id, renameValue)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleRenameList(list.id, renameValue);
+                            if (e.key === 'Escape') setRenamingListId(null);
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span>{list.name}</span>
+                      )}
+                      <span className="text-xs text-gray-500">({list.count})</span>
+                    </button>
+                    <button
+                      className="text-xs text-blue-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
+                      title="Rename"
+                      onClick={() => {
+                        setRenamingListId(list.id);
+                        setRenameValue(list.name);
+                      }}
+                    ><Pencil size={16} /></button>
+                    <button
+                      className="text-xs text-red-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
+                      title="Delete"
+                      onClick={() => handleDeleteList(list.id)}
+                    ><Trash2 size={16} /></button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
         {/* Right Pane: FileUpload or Entries in List */}
         <div className="md:w-2/3 flex-1 flex flex-col min-h-0 px-0 md:px-4">
-          {selectedListId === 'new' && (
+          {selectedListId === 'new' && !listsLoading && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Create New List</h2>
               <FileUpload key={fileUploadKey} onUpload={handleFileUpload} />
             </div>
           )}
-          {loading && selectedListId !== 'new' && <div className="mt-4 text-blue-600">Loading...</div>}
+          {applicantsLoading && selectedListId !== 'new' && !listsLoading && (
+            <div className="mt-4 space-y-4 animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+              <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+            </div>
+          )}
+          {loading && selectedListId !== 'new' && !applicantsLoading && !listsLoading && <div className="mt-4 text-blue-600">Loading...</div>}
           {localApplicants.length > 0 && !loading && selectedListId !== 'new' && (
             <div className="flex flex-col flex-1 min-h-0">
               <div className="flex justify-between items-center mb-4">
@@ -289,23 +315,23 @@ export default function Recepients() {
                   onEditRecipient={handleEditRecipient}
                 />
               </div>
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={handleNext}
-                  className={`px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-2 ${localApplicants.some((a) => a.selected) ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
-                  aria-label="Configure Templates"
-                  disabled={!localApplicants.some((a) => a.selected)}
-                >
-                  <span>Configure Templates</span>
-                  <span className="text-xl">→</span>
-                </button>
-              </div>
             </div>
           )}
           {selectedListId === '' && !loading && (
             <div className="text-gray-500 mt-12 text-center">Select a list to view its entries.</div>
           )}
         </div>
+      </div>
+      <div className="mt-6 flex w-full justify-center md:justify-end">
+        <button
+          onClick={handleNext}
+          className={`w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded flex items-center justify-center gap-2 ${selectedListId === '' || selectedListId === 'new' || !localApplicants.some((a) => a.selected) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600 cursor-pointer'}`}
+          aria-label="Configure Templates"
+          disabled={selectedListId === '' || selectedListId === 'new' || !localApplicants.some((a) => a.selected)}
+        >
+          <span>Configure Templates</span>
+          <span className="text-xl">→</span>
+        </button>
       </div>
     </main>
   );
