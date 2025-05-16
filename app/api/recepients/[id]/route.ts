@@ -2,14 +2,15 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { getUserFromAuthCookie } from '@/app/lib/auth';
 
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+type RouteHandlerContext = { params: Promise<{ id: string }> };
+
+export async function DELETE(request: Request, context: RouteHandlerContext) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { params } = context;
-    const listId = params.id;
+    const { id: listId } = await context.params;
     // First, delete all recipients in the list
     await prisma.recipient.deleteMany({
       where: { recipientListId: listId },
@@ -27,14 +28,13 @@ export async function DELETE(request: Request, context: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, context: { params: { id: string } }) {
+export async function PATCH(request: Request, context: RouteHandlerContext) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { params } = context;
-    const listId = params.id;
+    const { id: listId } = await context.params;
     const { name } = await request.json();
     if (!name || typeof name !== 'string' || !name.trim()) {
       return NextResponse.json({ error: 'List name is required' }, { status: 400 });

@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { getUserFromAuthCookie } from '@/app/lib/auth';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+type RouteHandlerContext = { params: Promise<{ id: string }> };
+
+export async function GET(request: Request, context: RouteHandlerContext) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { id: listId } = await params;
+    const { id: listId } = await context.params;
     const list = await prisma.recipientList.findUnique({
       where: { id: listId, userId: user.id },
       include: { recipients: true },
@@ -22,13 +24,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, context: RouteHandlerContext) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { id: listId } = await params;
+    const { id: listId } = await context.params;
     const { recipientId, data } = await request.json();
     if (!recipientId || !data) {
       return NextResponse.json({ error: 'Recipient id and data required' }, { status: 400 });
@@ -46,13 +48,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, context: RouteHandlerContext) {
   try {
     const user = await getUserFromAuthCookie();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { id: listId } = await params;
+    const { id: listId } = await context.params;
     const { recipientId } = await request.json();
     if (!recipientId) {
       return NextResponse.json({ error: 'Recipient id required' }, { status: 400 });
