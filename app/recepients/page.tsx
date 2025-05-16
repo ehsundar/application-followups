@@ -21,6 +21,7 @@ export default function Recepients() {
   const [lists, setLists] = useState<RecipientListMeta[]>([]);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fileUploadKey, setFileUploadKey] = useState(0);
 
   useEffect(() => {
     fetch('/api/init').then((res) => {
@@ -35,14 +36,14 @@ export default function Recepients() {
   }, []);
 
   useEffect(() => {
-    if (selectedListId) {
+    if (selectedListId && selectedListId !== 'new') {
       setLoading(true);
       fetch(`/api/recepients/${selectedListId}/recipients`)
         .then(res => res.json())
         .then(data => {
           setApplicants(data.map((r: any) => ({
             email: r.email,
-            name: r.firstName + (r.lastName ? ' ' + r.lastName : ''),
+            name: (r.firstName || '') + (r.lastName ? ' ' + r.lastName : ''),
             university: r.university,
             emailDate: '',
             subject: r.researchField,
@@ -68,6 +69,7 @@ export default function Recepients() {
         const newList = await res.json();
         setLists(lists => [newList, ...lists]);
         setSelectedListId(newList.id);
+        setFileUploadKey(k => k + 1);
       } else {
         alert('Failed to insert list');
       }
@@ -95,48 +97,83 @@ export default function Recepients() {
           Start Over
         </button>
       </div>
-
-      <FileUpload onUpload={handleFileUpload} />
-
-      <div className="mt-6">
-        <label className="block mb-2 font-medium">Select a previously uploaded list:</label>
-        <select
-          className="border rounded px-3 py-2"
-          value={selectedListId || ''}
-          onChange={e => setSelectedListId(e.target.value || null)}
-        >
-          <option value="">-- Select a list --</option>
-          {lists.map(list => (
-            <option key={list.id} value={list.id}>
-              {list.name} ({list.count} recipients)
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {loading && <div className="mt-4 text-blue-600">Loading...</div>}
-
-      {applicants.length > 0 && !loading && (
-        <div className="mt-8">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          </div>
-          <ApplicantTable
-            applicants={applicants}
-            onApplicantsChange={setApplicants}
-          />
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleNext}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer flex items-center gap-2"
-              aria-label="Configure Templates"
-            >
-              <span>Configure Templates</span>
-              <span className="text-xl">→</span>
-            </button>
+      <div className="flex flex-col md:flex-row">
+        {/* Left Pane: Lists and New List Button */}
+        <div className="w-full md:w-1/3 min-w-[220px] max-w-xs md:border-r px-0 md:px-4 mb-6 md:mb-0">
+          <div className="mb-6">
+            <div className="font-semibold mb-2">Your Lists</div>
+            <ul className="space-y-2">
+              <li>
+                <button
+                  className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''}`}
+                  onClick={() => {
+                    setSelectedListId('new');
+                    setFileUploadKey(k => k + 1);
+                  }}
+                >
+                  + New List
+                </button>
+              </li>
+              {lists.map(list => (
+                <li key={list.id}>
+                  <button
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 ${selectedListId === list.id ? 'bg-blue-200 dark:bg-blue-800 font-bold' : ''}`}
+                    onClick={() => setSelectedListId(list.id)}
+                  >
+                    {list.name} <span className="text-xs text-gray-500">({list.count})</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      )}
+        {/* Right Pane: FileUpload or Entries in List */}
+        <div className="w-full md:flex-1 px-0 md:px-4">
+          {selectedListId === 'new' && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Create New List</h2>
+              <FileUpload key={fileUploadKey} onUpload={handleFileUpload} />
+            </div>
+          )}
+          {loading && <div className="mt-4 text-blue-600">Loading...</div>}
+          {applicants.length > 0 && !loading && selectedListId !== 'new' && (
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">Entries in List</h2>
+                <span className="text-gray-500">{applicants.filter(a => a.selected).length} selected</span>
+              </div>
+              {(() => {
+                const meta = lists.find(l => l.id === selectedListId);
+                if (!meta) return null;
+                return (
+                  <div className="mb-4 text-sm text-gray-500 flex gap-6">
+                    <div>Created: {new Date(meta.createdAt).toLocaleString()}</div>
+                    <div>Updated: {new Date(meta.updatedAt).toLocaleString()}</div>
+                  </div>
+                );
+              })()}
+              <ApplicantTable
+                applicants={applicants}
+                onApplicantsChange={setApplicants}
+              />
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={handleNext}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-2 ${applicants.some(a => a.selected) ? 'hover:bg-blue-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                  aria-label="Configure Templates"
+                  disabled={!applicants.some(a => a.selected)}
+                >
+                  <span>Configure Templates</span>
+                  <span className="text-xl">→</span>
+                </button>
+              </div>
+            </div>
+          )}
+          {!selectedListId && !loading && (
+            <div className="text-gray-500 mt-12 text-center">Select a list to view its entries.</div>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
