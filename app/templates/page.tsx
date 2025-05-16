@@ -19,9 +19,12 @@ export default function TemplatesPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
   const [errors, setErrors] = useState<TemplateErrors>({});
+  const [listName, setListName] = useState<string | null>(null);
 
   useEffect(() => {
     const storedApplicants = localStorage.getItem('selectedApplicants');
+    const storedListName = localStorage.getItem('selectedListName');
+    setListName(storedListName);
     if (storedApplicants) {
       const parsedApplicants = JSON.parse(storedApplicants);
       const uniqueLabels = getUniqueLabels(parsedApplicants);
@@ -118,7 +121,12 @@ export default function TemplatesPage() {
   return (
     <main className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Configure Email Templates</h1>
+        <h1 className="text-2xl font-bold">
+          Configure Email Templates
+          {listName && (
+            <> for {listName}</>
+          )}
+        </h1>
         <button
           onClick={() => {
             localStorage.removeItem('selectedApplicants');
