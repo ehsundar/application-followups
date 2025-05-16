@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useReCaptcha } from 'next-recaptcha-v3';
 
 export default function LoginPage() {
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const inputRefs: React.RefObject<HTMLInputElement | null>[] = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -20,6 +21,23 @@ export default function LoginPage() {
     useRef<HTMLInputElement>(null),
   ];
   const { executeRecaptcha } = useReCaptcha();
+
+  // Determine safe next path
+  const nextParam = searchParams?.get('next');
+  const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') && !nextParam.startsWith('/\\') ? nextParam : '/recepients';
+
+  useEffect(() => {
+    // On mount, check if user is already logged in
+    fetch('/api/init').then(async (res) => {
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user && data.user.email) {
+          router.replace(safeNext);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +108,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email: email + '@gmail.com', code }),
       });
       if (response.ok) {
-        router.push('/');
+        router.push(safeNext);
       } else {
         const data = await response.json();
         setError(data.error || 'Invalid or expired code');

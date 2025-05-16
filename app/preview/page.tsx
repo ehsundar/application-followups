@@ -289,7 +289,7 @@ export default function PreviewPage() {
         <button
           onClick={() => {
             localStorage.removeItem('selectedApplicants');
-            router.push('/');
+            router.push('/recepients');
           }}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700"
         >

@@ -122,7 +122,7 @@ export default function TemplatesPage() {
         <button
           onClick={() => {
             localStorage.removeItem('selectedApplicants');
-            router.push('/');
+            router.push('/recepients');
           }}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
         >
