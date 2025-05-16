@@ -142,7 +142,7 @@ export default function Recepients() {
   };
 
   return (
-    <main className="container mx-auto p-4">
+    <main className="container-fluid mx-auto p-4 min-h-screen flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Application Follow-ups</h1>
         <button
@@ -155,9 +155,9 @@ export default function Recepients() {
           Start Over
         </button>
       </div>
-      <div className="flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-col md:flex-row  min-h-0">
         {/* Left Pane: Lists and New List Button */}
-        <div className="w-full md:w-1/3 md:min-w-[220px] md:max-w-xs md:border-r px-0 md:px-4 mb-6 md:mb-0">
+        <div className="md:w-1/3 md:min-w-[220px] md:max-w-[340px] md:border-r px-0 md:px-4 mb-6 md:mb-0 flex-shrink-0">
           <div className="mb-6">
             <div className="font-semibold mb-2">Your Lists</div>
             <ul className="space-y-2">
@@ -196,7 +196,7 @@ export default function Recepients() {
                     <span className="text-xs text-gray-500">({list.count})</span>
                   </button>
                   <button
-                    className="text-xs text-blue-500 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="text-xs text-blue-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Rename"
                     onClick={() => {
                       setRenamingListId(list.id);
@@ -204,7 +204,7 @@ export default function Recepients() {
                     }}
                   ><Pencil size={16} /></button>
                   <button
-                    className="text-xs text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="text-xs text-red-500 md:opacity-0 group-hover:opacity-100 cursor-pointer"
                     title="Delete"
                     onClick={() => handleDeleteList(list.id)}
                   ><Trash2 size={16} /></button>
@@ -214,7 +214,7 @@ export default function Recepients() {
           </div>
         </div>
         {/* Right Pane: FileUpload or Entries in List */}
-        <div className="w-full md:flex-1 px-0 md:px-4">
+        <div className="md:w-2/3 flex-1 flex flex-col min-h-0 px-0 md:px-4">
           {selectedListId === 'new' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Create New List</h2>
@@ -223,7 +223,7 @@ export default function Recepients() {
           )}
           {loading && <div className="mt-4 text-blue-600">Loading...</div>}
           {applicants.length > 0 && !loading && selectedListId !== 'new' && (
-            <div>
+            <div className="flex flex-col flex-1 min-h-0">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Entries in List</h2>
                 <span className="text-gray-500">{applicants.filter(a => a.selected).length} selected</span>
@@ -238,7 +238,7 @@ export default function Recepients() {
                   </div>
                 );
               })()}
-              <div className="max-h-[60vh] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto">
                 <ApplicantTable
                   applicants={applicants}
                   onApplicantsChange={setApplicants}
