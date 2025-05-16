@@ -6,6 +6,7 @@ import { FileUpload } from '../components/FileUpload';
 import { ApplicantTable } from '../components/ApplicantTable';
 import { Applicant } from '../types';
 import { parseCSV } from '../utils';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface RecipientListMeta {
   id: string;
@@ -22,6 +23,8 @@ export default function Recepients() {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [fileUploadKey, setFileUploadKey] = useState(0);
+  const [renamingListId, setRenamingListId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   useEffect(() => {
     fetch('/api/init').then((res) => {
@@ -42,6 +45,7 @@ export default function Recepients() {
         .then(res => res.json())
         .then(data => {
           setApplicants(data.map((r: any) => ({
+            id: r.id,
             email: r.email,
             name: (r.firstName || '') + (r.lastName ? ' ' + r.lastName : ''),
             university: r.university,
@@ -83,6 +87,60 @@ export default function Recepients() {
     router.push('/templates');
   };
 
+  // Delete list handler
+  const handleDeleteList = async (id: string) => {
+    if (!window.confirm('Delete this list?')) return;
+    setLoading(true);
+    const res = await fetch(`/api/recepients/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setLists(lists => lists.filter(l => l.id !== id));
+      if (selectedListId === id) {
+        setSelectedListId(null);
+        setApplicants([]);
+      }
+    } else {
+      alert('Failed to delete list');
+    }
+    setLoading(false);
+  };
+
+  // Rename list handler
+  const handleRenameList = async (id: string, name: string) => {
+    setLoading(true);
+    const res = await fetch(`/api/recepients/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (res.ok) {
+      setLists(lists => lists.map(l => l.id === id ? { ...l, name } : l));
+      setRenamingListId(null);
+    } else {
+      alert('Failed to rename list');
+    }
+    setLoading(false);
+  };
+
+  // Delete recipient handler
+  const handleDeleteRecipient = async (recipientId: string) => {
+    if (!selectedListId) return;
+    await fetch(`/api/recepients/${selectedListId}/recipients`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientId }),
+    });
+  };
+
+  // Edit recipient handler
+  const handleEditRecipient = async (recipientId: string, data: Partial<Applicant>) => {
+    if (!selectedListId) return;
+    await fetch(`/api/recepients/${selectedListId}/recipients`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientId, data }),
+    });
+  };
+
   return (
     <main className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
@@ -99,13 +157,13 @@ export default function Recepients() {
       </div>
       <div className="flex flex-col md:flex-row">
         {/* Left Pane: Lists and New List Button */}
-        <div className="w-full md:w-1/3 min-w-[220px] max-w-xs md:border-r px-0 md:px-4 mb-6 md:mb-0">
+        <div className="w-full md:w-1/3 md:min-w-[220px] md:max-w-xs md:border-r px-0 md:px-4 mb-6 md:mb-0">
           <div className="mb-6">
             <div className="font-semibold mb-2">Your Lists</div>
             <ul className="space-y-2">
               <li>
                 <button
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''}`}
+                  className={`w-full text-left px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900 ${selectedListId === 'new' ? 'bg-green-200 dark:bg-green-800 font-bold' : ''} cursor-pointer`}
                   onClick={() => {
                     setSelectedListId('new');
                     setFileUploadKey(k => k + 1);
@@ -115,13 +173,41 @@ export default function Recepients() {
                 </button>
               </li>
               {lists.map(list => (
-                <li key={list.id}>
+                <li key={list.id} className="flex items-center gap-2 group">
                   <button
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 ${selectedListId === list.id ? 'bg-blue-200 dark:bg-blue-800 font-bold' : ''}`}
+                    className={`flex-1 text-left px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900 ${selectedListId === list.id ? 'bg-blue-200 dark:bg-blue-800 font-bold' : ''} cursor-pointer`}
                     onClick={() => setSelectedListId(list.id)}
                   >
-                    {list.name} <span className="text-xs text-gray-500">({list.count})</span>
+                    {renamingListId === list.id ? (
+                      <input
+                        className="border rounded px-2 py-1 w-32"
+                        value={renameValue}
+                        onChange={e => setRenameValue(e.target.value)}
+                        onBlur={() => handleRenameList(list.id, renameValue)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleRenameList(list.id, renameValue);
+                          if (e.key === 'Escape') setRenamingListId(null);
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span>{list.name}</span>
+                    )}
+                    <span className="text-xs text-gray-500">({list.count})</span>
                   </button>
+                  <button
+                    className="text-xs text-blue-500 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    title="Rename"
+                    onClick={() => {
+                      setRenamingListId(list.id);
+                      setRenameValue(list.name);
+                    }}
+                  ><Pencil size={16} /></button>
+                  <button
+                    className="text-xs text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    title="Delete"
+                    onClick={() => handleDeleteList(list.id)}
+                  ><Trash2 size={16} /></button>
                 </li>
               ))}
             </ul>
@@ -152,10 +238,14 @@ export default function Recepients() {
                   </div>
                 );
               })()}
-              <ApplicantTable
-                applicants={applicants}
-                onApplicantsChange={setApplicants}
-              />
+              <div className="max-h-[60vh] overflow-y-auto">
+                <ApplicantTable
+                  applicants={applicants}
+                  onApplicantsChange={setApplicants}
+                  onDeleteRecipient={handleDeleteRecipient}
+                  onEditRecipient={handleEditRecipient}
+                />
+              </div>
               <div className="mt-4 flex justify-end">
                 <button
                   onClick={handleNext}

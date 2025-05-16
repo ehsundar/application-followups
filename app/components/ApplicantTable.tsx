@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,9 +10,13 @@ import { Applicant } from '../types';
 interface ApplicantTableProps {
   applicants: Applicant[];
   onApplicantsChange: (applicants: Applicant[]) => void;
+  onDeleteRecipient?: (id: string) => void;
+  onEditRecipient?: (id: string, data: Partial<Applicant>) => void;
 }
 
-export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTableProps) {
+export function ApplicantTable({ applicants, onApplicantsChange, onDeleteRecipient, onEditRecipient }: ApplicantTableProps) {
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [editData, setEditData] = useState<Partial<Applicant>>({});
   const columnHelper = createColumnHelper<Applicant>();
 
   const columns = useMemo(() => [
@@ -36,20 +40,103 @@ export function ApplicantTable({ applicants, onApplicantsChange }: ApplicantTabl
     }),
     columnHelper.accessor('name', {
       header: 'Name',
+      cell: ({ row }) => editIdx === row.index ? (
+        <input
+          className="border rounded px-2 py-1 w-full"
+          value={editData.name ?? row.original.name}
+          onChange={e => setEditData({ ...editData, name: e.target.value })}
+        />
+      ) : row.original.name,
     }),
     columnHelper.accessor('email', {
       header: 'Email',
+      cell: ({ row }) => editIdx === row.index ? (
+        <input
+          className="border rounded px-2 py-1 w-full"
+          value={editData.email ?? row.original.email}
+          onChange={e => setEditData({ ...editData, email: e.target.value })}
+        />
+      ) : row.original.email,
     }),
     columnHelper.accessor('university', {
       header: 'University',
+      cell: ({ row }) => editIdx === row.index ? (
+        <input
+          className="border rounded px-2 py-1 w-full"
+          value={editData.university ?? row.original.university}
+          onChange={e => setEditData({ ...editData, university: e.target.value })}
+        />
+      ) : row.original.university,
     }),
     columnHelper.accessor('emailDate', {
       header: 'Email Date',
+      cell: ({ row }) => editIdx === row.index ? (
+        <input
+          className="border rounded px-2 py-1 w-full"
+          value={editData.emailDate ?? row.original.emailDate}
+          onChange={e => setEditData({ ...editData, emailDate: e.target.value })}
+        />
+      ) : row.original.emailDate,
     }),
     columnHelper.accessor('subject', {
       header: 'Subject',
+      cell: ({ row }) => editIdx === row.index ? (
+        <input
+          className="border rounded px-2 py-1 w-full"
+          value={editData.subject ?? row.original.subject}
+          onChange={e => setEditData({ ...editData, subject: e.target.value })}
+        />
+      ) : row.original.subject,
     }),
-  ], [columnHelper, applicants, onApplicantsChange]);
+    columnHelper.display({
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          {editIdx === row.index ? (
+            <>
+              <button
+                className="text-green-600"
+                onClick={() => {
+                  const newApplicants = [...applicants];
+                  newApplicants[row.index] = { ...newApplicants[row.index], ...editData };
+                  onApplicantsChange(newApplicants);
+                  if (onEditRecipient && row.original.id) onEditRecipient(row.original.id, editData);
+                  setEditIdx(null);
+                  setEditData({});
+                }}
+              >Save</button>
+              <button
+                className="text-gray-500"
+                onClick={() => {
+                  setEditIdx(null);
+                  setEditData({});
+                }}
+              >Cancel</button>
+            </>
+          ) : (
+            <>
+              <button
+                className="text-blue-600"
+                onClick={() => {
+                  setEditIdx(row.index);
+                  setEditData(row.original);
+                }}
+              >Edit</button>
+              <button
+                className="text-red-600"
+                onClick={() => {
+                  if (onDeleteRecipient && row.original.id) onDeleteRecipient(row.original.id);
+                  const newApplicants = applicants.filter((_, i) => i !== row.index);
+                  onApplicantsChange(newApplicants);
+                }}
+              >Delete</button>
+            </>
+          )}
+        </div>
+      ),
+    }),
+  ], [columnHelper, applicants, onApplicantsChange, editIdx, editData, onDeleteRecipient, onEditRecipient]);
 
   const table = useReactTable({
     data: applicants,
