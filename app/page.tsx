@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Users } from 'lucide-react';
+import { Users, LogIn } from 'lucide-react';
 
 export default function Landing() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -37,18 +37,16 @@ export default function Landing() {
           <Link href="/recepients">
             <button className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2">
               <Users size={20} />
-              Go to Recipients
+              Go to Dashboard
             </button>
           </Link>
         ) : (
-          <>
-            <Link href="/login">
-              <button className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Login</button>
-            </Link>
-            <Link href="/signup">
-              <button className="px-6 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Sign Up</button>
-            </Link>
-          </>
+          <Link href="/login">
+            <button className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2">
+              <LogIn size={20} />
+              Login
+            </button>
+          </Link>
         )}
       </div>
       <div className="text-gray-500 text-sm">Start streamlining your application follow-ups today!</div>
