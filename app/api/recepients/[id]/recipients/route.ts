@@ -19,7 +19,7 @@ export async function GET(request: Request, context: RouteHandlerContext) {
       return NextResponse.json({ error: 'List not found' }, { status: 404 });
     }
     return NextResponse.json(list.recipients);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch recipients' }, { status: 500 });
   }
 }
@@ -43,7 +43,7 @@ export async function PATCH(request: Request, context: RouteHandlerContext) {
       return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update recipient' }, { status: 500 });
   }
 }
@@ -66,7 +66,7 @@ export async function DELETE(request: Request, context: RouteHandlerContext) {
       return NextResponse.json({ error: 'Recipient not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete recipient' }, { status: 500 });
   }
 }

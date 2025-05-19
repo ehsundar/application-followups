@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         name: String(listName),
         user: { connect: { id: user.id } },
         recipients: {
-          create: records.map((row: any) => ({
+          create: records.map((row: Record<string, string>) => ({
             email: row.Email || row.email,
             firstName: row.FirstName || row.firstName || row.Name?.split(' ')[0] || '',
             lastName: row.LastName || row.lastName || row.Name?.split(' ')[1] || '',

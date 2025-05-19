@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         name: name.trim(),
         user: { connect: { id: user.id } },
         recipients: {
-          create: applicants.map((a: any) => ({
+          create: applicants.map((a: Record<string, string>) => ({
             email: a.email,
             firstName: a.name?.split(' ')[0] || '',
             lastName: a.name?.split(' ')[1] || '',

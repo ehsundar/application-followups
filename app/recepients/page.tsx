@@ -48,23 +48,30 @@ export default function Recepients() {
 
   // Fetch applicants for selected list
   const {
-    data: applicants = [],
     isLoading: applicantsLoading,
     refetch: refetchApplicants,
   } = useQuery<Applicant[]>({
     queryKey: ['applicants', selectedListId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Applicant[]> => {
       if (!selectedListId || selectedListId === 'new') return [];
       const res = await fetch(`/api/recepients/${selectedListId}/recipients`);
-      const data = await res.json();
+      const data: unknown = await res.json();
       if (!Array.isArray(data)) return [];
-      return data.map((r: any) => ({
+      type RecipientApi = {
+        id: string;
+        email: string;
+        firstName?: string;
+        lastName?: string;
+        university?: string;
+        researchField?: string;
+      };
+      return (data as RecipientApi[]).map((r) => ({
         id: r.id,
         email: r.email,
         name: (r.firstName || '') + (r.lastName ? ' ' + r.lastName : ''),
-        university: r.university,
+        university: r.university ?? '',
         emailDate: '',
-        subject: r.researchField,
+        subject: r.researchField ?? '',
         selected: true,
       }));
     },
@@ -98,11 +105,9 @@ export default function Recepients() {
       if (!res.ok) throw new Error('Failed to delete list');
       return id;
     },
-    onSuccess: (id: string) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipientLists'] });
-      if (selectedListId === id) {
-        setSelectedListId('new');
-      }
+      setSelectedListId('new');
     },
     onError: () => alert('Failed to delete list'),
   });
@@ -117,7 +122,7 @@ export default function Recepients() {
       if (!res.ok) throw new Error('Failed to rename list');
       return { id, name };
     },
-    onSuccess: ({ id }: { id: string; name: string }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipientLists'] });
       setRenamingListId(null);
     },

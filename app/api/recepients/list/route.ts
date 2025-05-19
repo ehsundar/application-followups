@@ -13,14 +13,14 @@ export async function GET() {
       include: { _count: { select: { recipients: true } } },
       orderBy: { createdAt: 'desc' },
     });
-    return NextResponse.json(lists.map((list: any) => ({
+    return NextResponse.json(lists.map((list) => ({
       id: list.id,
       name: list.name && list.name.trim() ? list.name : 'Untitled List',
       count: list._count.recipients,
-      createdAt: list.createdAt,
-      updatedAt: list.updatedAt,
+      createdAt: list.createdAt?.toString(),
+      updatedAt: list.updatedAt?.toString(),
     })));
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch lists' }, { status: 500 });
   }
 }

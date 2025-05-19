@@ -23,7 +23,7 @@ export async function DELETE(request: Request, context: RouteHandlerContext) {
       return NextResponse.json({ error: 'List not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete list' }, { status: 500 });
   }
 }
@@ -47,7 +47,7 @@ export async function PATCH(request: Request, context: RouteHandlerContext) {
       return NextResponse.json({ error: 'List not found' }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to rename list' }, { status: 500 });
   }
 }
