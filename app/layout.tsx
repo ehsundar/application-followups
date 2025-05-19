@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReCaptchaProvider } from 'next-recaptcha-v3';
 import { Providers } from './providers';
+import Header from './components/Header';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,6 +86,7 @@ export default function RootLayout({
       >
         <ReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}>
           <Providers>
+            <Header />
             {children}
           </Providers>
         </ReCaptchaProvider>

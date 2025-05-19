@@ -195,7 +195,6 @@ export default function Recepients() {
   return (
     <main className="container-fluid mx-auto p-4 min-h-screen flex flex-col">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Application Follow-ups</h1>
         <button
           onClick={() => {
             setLocalApplicants([]);

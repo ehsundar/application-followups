@@ -28,10 +28,6 @@ export default function Landing() {
 
   return (
     <main className="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold mb-4">Application Follow-ups</h1>
-      <p className="text-lg mb-8 max-w-xl text-center">
-        Effortlessly manage and follow up with your job or application recipients. Upload your CSV, preview, and send personalized follow-up emails in just a few clicks.
-      </p>
       <div className="flex gap-4 mb-8">
         {isLoggedIn ? (
           <Link href="/recepients">
