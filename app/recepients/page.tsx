@@ -161,8 +161,11 @@ export default function Recepients() {
     const meta = lists.find((l: RecipientListMeta) => l.id === selectedListId);
     if (meta) {
       localStorage.setItem('selectedListName', meta.name);
+      const selectedApplicants = localApplicants.filter(a => a.selected);
+      localStorage.setItem('selectedApplicants', JSON.stringify(selectedApplicants));
     } else {
       localStorage.removeItem('selectedListName');
+      localStorage.removeItem('selectedApplicants');
     }
     router.push('/templates');
   };

@@ -36,7 +36,7 @@ export default function TemplatesPage() {
       setTemplates(mappedTemplates);
       saveEmailTemplates(mappedTemplates);
     } else {
-      router.push('/');
+      router.push('/recepients');
     }
   }, [router]);
 
